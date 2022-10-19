@@ -85,7 +85,7 @@ returning an application/json response such as this
 
 ### Agents
 
-Agents classes are intended for scraping the corresponding websites. They act as a layer of abstraction for our API Endpoint functions to call on.
+Agents classes are intended for scraping the website (what to scrape will be mentioned later). They act as a layer of abstraction for our API Endpoint functions to call on.
 
 In this example the User is accessing the Libgen API.
 
