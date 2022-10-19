@@ -1,6 +1,22 @@
+from enum import Enum
 from typing import Dict, List, Optional
 
 from pydantic import BaseModel
+
+
+class LibraryZlib(str, Enum):
+    zlibrary = "zlibrary"
+
+
+class LibraryLibgen(str, Enum):
+    libgen = "libgen"
+    libgenlc = "libgenlc"
+
+
+class LibraryAll(str, Enum):
+    libgen = LibraryLibgen.libgen.value
+    libgenlc = LibraryLibgen.libgenlc.value
+    zlibrary = LibraryZlib.zlibrary.value
 
 
 class PublicationModel(BaseModel):

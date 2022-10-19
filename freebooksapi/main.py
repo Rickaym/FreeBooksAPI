@@ -1,5 +1,4 @@
 import logging
-from enum import Enum
 from logging import getLogger
 from typing import Dict, Optional
 
@@ -10,6 +9,8 @@ from models import MetaPublicationModel
 from scrapers.agent import Agent
 from scrapers.libgen import GenLibRusEc, LibGenLc
 from scrapers.objects import SearchUrlArgs
+
+from freebooksapi.models import LibraryAll
 
 FREEBOOKSAPI = FastAPI()
 
@@ -28,17 +29,11 @@ log = getLogger("main")
 ##### Logging
 
 
-class Library(str, Enum):
-    libgen = "libgen"
-    libgenlc = "libgenlc"
-    zlibrary = "zlibrary"
-    any = "*"
-
-
 LIBRARY_AGENTS: Dict[str, Agent] = {
-    Library.libgen: GenLibRusEc(),
-    Library.libgenlc: LibGenLc(),
+    LibraryAll.libgen.value: GenLibRusEc(),
+    LibraryAll.libgenlc.value: LibGenLc(),
 }
+
 CURRENT_VERSION = "v1"
 VERSIONS = [CURRENT_VERSION]
 
@@ -67,7 +62,7 @@ async def startup_event():
 @FREEBOOKSAPI.get(
     "/{library}/topics",
 )
-async def get_enlisted_topics(library: Library):
+async def get_enlisted_topics(library: LibraryAll):
     """
     Retrieve available topics for the library. The topic IDs fetched here can
     be used in the `/search` endpoint via `topic_id`.
@@ -78,7 +73,7 @@ async def get_enlisted_topics(library: Library):
 @FREEBOOKSAPI.get(
     "/{library}/last-added",
 )
-def get_last_added(library: Library):
+def get_last_added(library: LibraryAll):
     """
     Retrieve most recently added publications.
     """
@@ -89,7 +84,7 @@ def get_last_added(library: Library):
     "/{library}/aliases",
     response_description="Library URL Aliases.",
 )
-def get_aliases(library: Library):
+def get_aliases(library: LibraryAll):
     """
     Retrieve existing aliases for the given libraries.
     """
@@ -102,7 +97,7 @@ def get_aliases(library: Library):
     response_model=MetaPublicationModel,
 )
 def get_publications(
-    library: Library,
+    library: LibraryAll,
     query: str,
     topic_id: Optional[int] = None,
     limit: int = 25,
@@ -121,7 +116,7 @@ def get_publications(
             404, "BADARGUMENT", f"You cannot use the '*' query without a topic id."
         )
 
-    agent = LIBRARY_AGENTS[library]
+    agent = LIBRARY_AGENTS[library.value]
     result = agent.query(
         query,
         SearchUrlArgs(
