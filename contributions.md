@@ -2,7 +2,7 @@
 
 Great to see you here cadet, ATTENTION!
 
-To understand the server infastructure and scrapers you will have to understand the intitutions behind the components that ensures that FreeBooksAPI works like a well oiled machine.
+To understand the server infastructure and scrapers you will have to understand the intuitions behind the components that ensures that FreeBooksAPI works like a well oiled machine.
 
 ## Index
 
