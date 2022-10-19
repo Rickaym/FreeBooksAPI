@@ -32,10 +32,19 @@ While it should be relatively simple to navigate through the files to understand
 ## Setting up a development environment
 
 To start working on the project you'll have to setup a development environment.
+This guide assumes you have an installation of:
 
-### Installing the dependencies
+1. Python of version at least `3.9`
+2. Git CLI
 
-1. Install Python of version at least `3.9`
+Follow these in order:
+
+1. Open a Terminal or a Command Prompt in a directory you want to clone the repository into and use the following command :
+
+```
+git clone https://github.com/Rickaym/FreeBooksAPI
+```
+
 2. Install the required dependencies by running the following command:
 
 ```
@@ -131,7 +140,7 @@ async def get_enlisted_topics(library: Library):
 
 Each library agent determines the complete implementation of the interfacing methods such as `search()` `get_topics()` so long as they return the correct data in the object typed by the `Agent` class.
 
-#### Not supporting certain Endpoints
+#### Disabling supporting certain Endpoints
 
 If a specific library Agent is not able to support all methods specified by the `Agent` class, an extra step must be taken in removing the library as an acceptable `{library}` parameter in the API Endpoint declaration and leaving a `NotImplementedError` raised override of the method.
 
@@ -141,7 +150,7 @@ If a specific library Agent is not able to support all methods specified by the 
 def get_last_added(library: LibraryLibgen):
     """
     Use `LibraryLibgen` for the Library parameter
-    rather than LibraryAll.
+    rather than `LibraryAll`.
     """
 ```
 
