@@ -130,10 +130,3 @@ class GenLibRusEc(Agent):
         return attrs
 
 
-class LibGenLc(GenLibRusEc):
-    # TODO: Implement https://libgen.lc/
-    pass
-
-class LibGenMe(GenLibRusEc):
-    # TODO: Implement https://libgen.me/
-    pass
