@@ -7,7 +7,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from models import MetaPublicationModel
 from scrapers.agent import Agent
-from scrapers.libgen import GenLibRusEc, LibGenLc
+from scrapers.genlibrusec import GenLibRusEc
+from scrapers.libgenlc import LibGenLc
 from scrapers.objects import SearchUrlArgs
 
 from freebooksapi.models import LibraryAll
