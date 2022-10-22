@@ -5,13 +5,16 @@ from logging import getLogger
 from typing import Dict, List, Optional
 from misc import cache_cascade, set_cache
 from exceptions import ErrorJsonResponse
-from models import MetaPublicationModel, LibraryAll
+from models import MetaPublicationModel, LibraryAll, LibraryZlib
 from scrapers.agent import Agent
 from scrapers.genlibrusec import GenLibRusEc
 from scrapers.libgenlc import LibGenLc
 from scrapers.objects import SearchUrlArgs, SearchMode
 
-FREEBOOKSAPI = FastAPI()
+FREEBOOKSAPI = FastAPI(
+    title="FreeBooksAPI",
+    description="A comprehensive (unofficial) API service for gen.lib.rus.ec , libgen.lc, Z-Library and libgen.me.",
+)
 
 ##### Logging
 _loggers = ["main", "libgen", "zlibrary"]
@@ -33,8 +36,14 @@ LIBRARY_AGENTS: Dict[str, Agent] = {
     LibraryAll.libgenlc.value: LibGenLc(),
 }
 
-CURRENT_VERSION = "v1"
-VERSIONS = [CURRENT_VERSION]
+
+@FREEBOOKSAPI.get("/{library}/search-fulltext", response_model=MetaPublicationModel)
+async def get_publications_fulltext(library: LibraryZlib):
+    """
+    Perform a full text search to retrieve a publication.
+    (only available on z-library)
+    """
+    raise NotImplementedError
 
 
 @FREEBOOKSAPI.get("/{library}/datadumps", response_model=Dict[str, str])
@@ -60,7 +69,8 @@ async def get_enlisted_topics(library: LibraryAll):
     Retrieve available topics for the library. The topic IDs fetched here can
     be used in the `/search` endpoint via `topic_id`.
     """
-    pass
+    # this function is simply signatory, it is never called
+    # the data response needed for this endpoint is fetched from cache
 
 
 @FREEBOOKSAPI.get(
@@ -73,7 +83,7 @@ def get_aliases(library: LibraryAll):
     Retrieve existing aliases for the given libraries.
     """
     if library is LibraryAll.libgen:
-      return ["http://libgen.rs/", "http://libgen.is/", "http://libgen.st/"]
+        return ["http://libgen.rs/", "http://libgen.is/", "http://libgen.st/"]
     elif library is LibraryAll.libgenlc:
         return ["http://libgen.lc/", "http://libgen.gs/", "http://libgen.li/"]
 

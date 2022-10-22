@@ -1,7 +1,7 @@
 import re
 from logging import getLogger
 from traceback import print_exception
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from urllib.parse import urlencode
 
 from .agent import Agent, SearchResult
@@ -22,19 +22,31 @@ RE_TOPIC_HREF = re.compile(r"topicid(\d*)")
 
 
 class GenLibRusEc(Agent):
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        search_url="http://gen.lib.rus.ec/search.php",
+        topics_url="http://gen.lib.rus.ec/",
+        last_added_url="",
+        datadumps_url="https://libgen.is/dbdumps/"
+    ) -> None:
         super().__init__(
-            search_url="http://gen.lib.rus.ec/search.php",
-            topics_url="http://gen.lib.rus.ec/",
+            search_url=search_url,
+            topics_url=topics_url,
+            last_added_url="",
+            datadumps_url=datadumps_url
         )
 
-    def get_page_url(self, search_term: str, args: SearchUrlArgs) -> str:
-        urlargs = {"req": search_term, "page": args.page}
+    def get_page_url(self, search_term: Optional[str], args: SearchUrlArgs) -> str:
+        urlargs: Dict[str, Any] = {"page": args.page}
 
+        if search_term:
+            urlargs["req"] = search_term
         if args.limit in (25, 50, 100):
             urlargs["res"] = args.limit
         if args.topic_id:
             urlargs["req"] = f"topicid{args.topic_id}"
+        if args.search_mode:
+            urlargs["mode"] = args.search_mode.value
 
         return f"{self.search_url}?{urlencode(urlargs)}"
 
@@ -129,4 +141,9 @@ class GenLibRusEc(Agent):
         }
         return attrs
 
+    def parse_last_added(self, page):
+        raise NotImplementedError
+
+    def parse_datadumps(self, page):
+        raise NotImplementedError
 
