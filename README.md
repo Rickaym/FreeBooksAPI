@@ -15,3 +15,4 @@ A comprehensive (unofficial) API service for [gen.lib.rus.ec/libgen.rs](http://g
 For contributions: read [contributions.md](./contributions.md).
 
 Made with <3 by Ricky
+Kek
