@@ -1,9 +1,8 @@
 import abc
 from abc import ABC
 from logging import getLogger
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-import requests
 from bs4 import BeautifulSoup
 
 from .ahttp import get_page
@@ -18,11 +17,15 @@ class Agent(ABC):
     operations like searching a book and parses out the data into Python objects.
     """
 
-    def __init__(self, search_url: str, topics_url: str) -> None:
+    def __init__(
+        self, search_url: str, topics_url: str, last_added_url: str, datadumps_url: str
+    ) -> None:
         self.search_url = search_url
         self.topics_url = topics_url
+        self.last_added_url = last_added_url
+        self.datadumps_url = datadumps_url
 
-    def query(self, search_term: str, urlargs: SearchUrlArgs):
+    async def query(self, search_term: Optional[str], urlargs: SearchUrlArgs):
         """
         Queries the search term along with the url args
         on the corresponding website.
@@ -32,24 +35,20 @@ class Agent(ABC):
 
         :returns: :class:`SearchResult`
         """
-        if search_term != "*" and len(search_term) < 3:
+        if search_term and len(search_term) < 3:
             raise ValueError("Your search term must be at least 3 characters long.")
 
-        log.info(f"Searching for: '{search_term}'")
-
         page_url = self.get_page_url(search_term, urlargs)
-        r = requests.get(page_url)
-
-        if r.status_code == 200:
-            with open("test.html", "w", encoding="utf-8") as f:
-                f.write(r.text)
-            return self.parse_result(BeautifulSoup(r.text, "lxml"))
+        return self.parse_result(await get_page(page_url))
 
     async def get_topics(self):
         return self.parse_topics(await get_page(self.topics_url))
 
+    async def get_datadumps(self):
+        return self.parse_datadumps(await get_page(self.datadumps_url))
+
     @abc.abstractmethod
-    def get_page_url(self, search_term: str, urlargs: SearchUrlArgs) -> str:
+    def get_page_url(self, search_term: Optional[str], urlargs: SearchUrlArgs) -> str:
         """
         Encode all args into the search URL.
 
@@ -77,5 +76,15 @@ class Agent(ABC):
 
         :param page: result page as an BeautifulSoup4 object
         :returns: :class:`SearchResult`
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def parse_datadumps(self, page: BeautifulSoup) -> Dict[str, str]:
+        """
+        Extract all external datadump links.
+
+        :param page: result page as an BeautifulSoup4 object
+        :returns: :class:`LastAddedResult`
         """
         raise NotImplementedError
