@@ -1,16 +1,15 @@
 import logging
 from logging import getLogger
 from typing import Dict, Optional
-
 from fastapi import FastAPI
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from models import MetaPublicationModel
 from scrapers.agent import Agent
-from scrapers.libgen import GenLibRusEc, LibGenLc
+from scrapers.genlibrusec import GenLibRusEc
+from scrapers.libgenlc import LibGenLc
 from scrapers.objects import SearchUrlArgs
-
-from freebooksapi.models import LibraryAll
+from models import LibraryAll
 
 FREEBOOKSAPI = FastAPI()
 
@@ -88,7 +87,10 @@ def get_aliases(library: LibraryAll):
     """
     Retrieve existing aliases for the given libraries.
     """
-    return ["http://libgen.rs/", "http://libgen.is/", "http://libgen.st/"]
+    if (library.value == LibraryAll.libgen.value):
+      return ["http://libgen.rs/", "http://libgen.is/", "http://libgen.st/"]
+    elif (library.value == LibraryAll.libgenlc.value):
+      return ['http://libgen.lc/', 'http://libgen.gs/', 'http://libgen.li/']
 
 
 @FREEBOOKSAPI.get(
