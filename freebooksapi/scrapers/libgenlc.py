@@ -9,7 +9,7 @@ from .objects import Publication, SearchUrlArgs
 
 class LibGenLc(GenLibRusEc):
     def __init__(self) -> None:
-        self.search_url = "https://libgen.lc/index.php"
+        super().__init__(search_url="https://libgen.lc/index.php")
 
     # TODO:Last Added Publiciations(link = https://libgen.lc/index.php?req=fmode:last&topics1=all)
     def get_page_url(self, search_term: str, args: SearchUrlArgs) -> str:
