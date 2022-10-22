@@ -1,3 +1,23 @@
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+
+
+class ErrorJsonResponse(JSONResponse):
+    def __init__(self, status_code: int, status_name: str, message: str) -> None:
+        super().__init__(
+            jsonable_encoder(
+                {
+                    "error": {
+                        "code": status_code,
+                        "message": message,
+                        "status": status_name,
+                    }
+                }
+            ),
+            status_code=status_code,
+        )
+
+
 class LoopError(Exception):
     def __init__(self, message):
         super().__init__(message)
