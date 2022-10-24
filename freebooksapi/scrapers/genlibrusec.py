@@ -26,13 +26,11 @@ class GenLibRusEc(Agent):
         self,
         search_url="http://gen.lib.rus.ec/search.php",
         topics_url="http://gen.lib.rus.ec/",
-        last_added_url="",
         datadumps_url="https://libgen.is/dbdumps/"
     ) -> None:
         super().__init__(
             search_url=search_url,
             topics_url=topics_url,
-            last_added_url="",
             datadumps_url=datadumps_url
         )
 

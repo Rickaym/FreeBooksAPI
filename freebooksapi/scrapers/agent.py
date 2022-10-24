@@ -18,11 +18,10 @@ class Agent(ABC):
     """
 
     def __init__(
-        self, search_url: str, topics_url: str, last_added_url: str, datadumps_url: str
+        self, search_url: str, topics_url: str, datadumps_url: str
     ) -> None:
         self.search_url = search_url
         self.topics_url = topics_url
-        self.last_added_url = last_added_url
         self.datadumps_url = datadumps_url
 
     async def query(self, search_term: Optional[str], urlargs: SearchUrlArgs):
