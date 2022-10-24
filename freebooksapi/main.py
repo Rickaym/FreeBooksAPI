@@ -1,11 +1,12 @@
 import logging
+from pkgutil import get_data
 
 from fastapi import FastAPI
 from logging import getLogger
-from typing import Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 from misc import cache_cascade, set_cache
 from exceptions import ErrorJsonResponse
-from models import MetaPublicationModel, LibraryAll, LibraryZlib
+from models import MetaPublicationModel, LibraryAll, LibraryZlib, MetaDatadumpModel
 from scrapers.agent import Agent
 from scrapers.genlibrusec import GenLibRusEc
 from scrapers.libgenlc import LibGenLc
@@ -46,15 +47,40 @@ async def get_publications_fulltext(library: LibraryZlib):
     raise NotImplementedError
 
 
-@FREEBOOKSAPI.get("/{library}/datadumps", response_model=Dict[str, str])
-async def get_datadumps(library: LibraryAll):
-    return await LIBRARY_AGENTS[library.value].get_datadumps()
+async def cache_get_datadumps(cache_id: str):
+    log.info(f'Retrieving cache information under "{cache_id}"')
+    for name, lib in LIBRARY_AGENTS.items():
+        canonical_name = cache_id.format(library=name)
+        dbdumps = await lib.get_datadumps()
+        log.info(f'Filled cache  "{canonical_name}" with "{len(dbdumps or [])}" items.')
+        set_cache(canonical_name, dbdumps)
+
+
+@FREEBOOKSAPI.get("/{library}/datadumps", response_model=MetaDatadumpModel)
+@cache_cascade(
+    cache_id="{library}/datadumps",
+    cache_every_h=24,
+    release_after_h=48,
+    caching_task=cache_get_datadumps,
+    pass_result=True,
+)
+def get_datadumps(library: LibraryAll):
+    # `get_cached` attribute is set by the decorator
+    dbdumps = get_datadumps.get_cached(library)
+    return {
+        "datadump_url": LIBRARY_AGENTS[library.value].datadumps_url,
+        "total_results": len(dbdumps),
+        "results": (item.__dict__ for item in dbdumps),
+    }
 
 
 async def cache_get_enlisted_topics(cache_id: str):
     log.info(f'Retrieving cache information under "{cache_id}"')
     for name, lib in LIBRARY_AGENTS.items():
-        set_cache(cache_id.format(library=name), await lib.get_topics())
+        canonical_name = cache_id.format(library=name)
+        topics = await lib.get_topics()
+        log.info(f'Filled cache  "{canonical_name}" with "{len(topics or [])}" items.')
+        set_cache(canonical_name, topics)
 
 
 @FREEBOOKSAPI.get("/{library}/topics", response_model=Dict[str, str])
@@ -63,13 +89,13 @@ async def cache_get_enlisted_topics(cache_id: str):
     cache_every_h=24,
     release_after_h=48,
     caching_task=cache_get_enlisted_topics,
+    pass_result=False,
 )
 async def get_enlisted_topics(library: LibraryAll):
     """
     Retrieve available topics for the library. The topic IDs fetched here can
     be used in the `/search` endpoint via `topic_id`.
     """
-    # this function is simply signatory, it is never called
     # the data response needed for this endpoint is fetched from cache
 
 

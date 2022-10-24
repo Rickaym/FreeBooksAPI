@@ -19,6 +19,20 @@ class LibraryAll(str, Enum):
     zlibrary = LibraryZlib.zlibrary.value
 
 
+class DatadumpModel(BaseModel):
+    name = "fiction.rar"
+    url = "https://libgen.is/dbdumps/fiction.rar"
+    last_modified: str = "2022-10-24 04:37"
+    size: str = "1.0G"
+    description: str = "Housebound dogs: how to keep your stay-at-home dog happy & healthy"
+
+
+class MetaDatadumpModel(BaseModel):
+    datadump_url = "https://libgen.is/dbdumps/"
+    total_results: int = 33
+    results: List[DatadumpModel] = [DatadumpModel()]
+
+
 class PublicationModel(BaseModel):
     id = 1016852
     authors = "Paula Kephart"

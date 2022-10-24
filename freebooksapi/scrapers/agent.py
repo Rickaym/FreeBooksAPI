@@ -1,12 +1,12 @@
 import abc
 from abc import ABC
 from logging import getLogger
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from bs4 import BeautifulSoup
 
 from .ahttp import get_page
-from .objects import SearchResult, SearchUrlArgs
+from .objects import Datadump, SearchResult, SearchUrlArgs
 
 log = getLogger("agent")
 
@@ -38,7 +38,8 @@ class Agent(ABC):
             raise ValueError("Your search term must be at least 3 characters long.")
 
         page_url = self.get_page_url(search_term, urlargs)
-        return self.parse_result(await get_page(page_url))
+        page = await get_page(page_url)
+        return self.parse_result(page)
 
     async def get_topics(self):
         return self.parse_topics(await get_page(self.topics_url))
@@ -79,7 +80,7 @@ class Agent(ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def parse_datadumps(self, page: BeautifulSoup) -> Dict[str, str]:
+    def parse_datadumps(self, page: BeautifulSoup) -> List[Datadump]:
         """
         Extract all external datadump links.
 

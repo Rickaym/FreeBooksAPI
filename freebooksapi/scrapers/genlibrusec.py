@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional
 from urllib.parse import urlencode
 
 from .agent import Agent, SearchResult
-from .objects import Publication, SearchUrlArgs
+from .objects import Datadump, Publication, SearchUrlArgs
 from .utilities import get_href
 
 log = getLogger("libgen")
@@ -26,12 +26,10 @@ class GenLibRusEc(Agent):
         self,
         search_url="http://gen.lib.rus.ec/search.php",
         topics_url="http://gen.lib.rus.ec/",
-        datadumps_url="https://libgen.is/dbdumps/"
+        datadumps_url="https://libgen.is/dbdumps/",
     ) -> None:
         super().__init__(
-            search_url=search_url,
-            topics_url=topics_url,
-            datadumps_url=datadumps_url
+            search_url=search_url, topics_url=topics_url, datadumps_url=datadumps_url
         )
 
     def get_page_url(self, search_term: Optional[str], args: SearchUrlArgs) -> str:
@@ -139,9 +137,24 @@ class GenLibRusEc(Agent):
         }
         return attrs
 
-    def parse_last_added(self, page):
-        raise NotImplementedError
+    def _extract_dbdumps_attrs(self, cell):
+        columns = cell.find_all("td")
+        if not columns:
+            return {}
+        return {
+            "name": columns[0].text,
+            "url": get_href(columns[0]),
+            "last_modified": columns[1].text,
+            "size": columns[2].text,
+            "description": columns[3].text,
+        }
 
     def parse_datadumps(self, page):
-        raise NotImplementedError
-
+        # the first three rows are table header and directory buttons
+        dumps = []
+        for row in page.find_all("tr")[3:]:
+            if row:
+                attrs = self._extract_dbdumps_attrs(row)
+                if attrs:
+                    dumps.append(Datadump(**attrs))
+        return dumps
