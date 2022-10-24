@@ -56,11 +56,9 @@ class SearchResult:
 
 
 @dataclass(frozen=True)
-class LastAddedResult:
-    publications: List[Publication]
-
-    def get_publications(self, offset: int, limit: int):
-        pubs = self.publications[offset:]
-        if len(pubs) > limit:
-            return pubs[:limit]
-        return pubs
+class Datadump:
+    name: str
+    url: str
+    last_modified: str
+    size: str
+    description: str
