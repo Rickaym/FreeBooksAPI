@@ -4,7 +4,7 @@
 - This is currently under heavy development.
 ```
 
-A comprehensive (unofficial) API service for [gen.lib.rus.ec/libgen.rs](http://gen.lib.rus.ec/) , [libgen.lc/libgen.li](http://libgen.lc/), [Z-Library](http://b-ok.org/) and [libgen.me](http://libgen.me/) (essentially all the mirrors [here](https://forum.mhut.org/viewtopic.php?p=9000)).
+A comprehensive (unofficial) API service for [planet-ebooks](https://www.planetebook.com/), [gen.lib.rus.ec/libgen.rs](http://gen.lib.rus.ec/) , [libgen.lc/libgen.li](http://libgen.lc/), [Z-Library](http://b-ok.org/) and [libgen.me](http://libgen.me/) (essentially all the mirrors [here](https://forum.mhut.org/viewtopic.php?p=9000)).
 
 ### Features
 
