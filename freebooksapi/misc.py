@@ -97,6 +97,7 @@ def cache_cascade(
     cache_every_h: int,
     release_after_h: int,
     caching_task: Any,
+    pass_result: bool,
 ):
     """
     Triggers a cascade of tasks when the end-point is hit with an
@@ -105,11 +106,15 @@ def cache_cascade(
     """
     released = True
 
+    def cascade():
+        nonlocal released
+        released = False
+
     def on_release():
         nonlocal released
         released = True
 
-    cascade = lambda: repeat_every(
+        repeat_every(
         func=functools.partial(caching_task, cache_id),
         # set released to True after max iter is reached
         on_release=on_release,
@@ -122,17 +127,27 @@ def cache_cascade(
     def predicate(func):
         # The wrapped function completely discards the implemetation of the
         # function that is wrapped.
+        is_coroutine = asyncio.iscoroutinefunction(func)
+        # cache getter function
+        get_cached = lambda library: get_cache(cache_id.format(library=library.value))
         @functools.wraps(func)
         async def wrapped(library: LibraryAll):
             nonlocal released
             # if the cache function is hit again after being released
             # this will cascade the task again
             if released:
-                released = False
                 cascade()
 
-            return get_cache(cache_id.format(library=library.value))
+            if pass_result:
+                # here the wrapped function assumes control
+                return await func(library) if is_coroutine else func(library)
+            return get_cached(library)
 
+        if pass_result:
+            # we need to pass the resulting cache getter to the wrapped
+            # through the `get_cached` attribute so that the user may
+            # call it internall
+            wrapped.get_cached = get_cached
         return wrapped
 
     # call caching function once beginning
