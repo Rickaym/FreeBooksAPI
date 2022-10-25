@@ -52,7 +52,6 @@ class GenLibRusEc(Agent):
         return {
             a.text: int(RE_TOPIC_HREF.search(a.get("href")).groups()[0]) for a in hrefs
         }
-
     def parse_result(self, page):
         tables = page.find_all("table")
 
@@ -148,7 +147,6 @@ class GenLibRusEc(Agent):
             "size": columns[2].text,
             "description": columns[3].text,
         }
-
     def parse_datadumps(self, page):
         # the first three rows are table header and directory buttons
         dumps = []
