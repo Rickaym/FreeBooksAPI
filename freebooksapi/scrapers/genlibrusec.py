@@ -1,11 +1,11 @@
 import re
 from logging import getLogger
 from traceback import print_exception
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from urllib.parse import urlencode
 
 from .agent import Agent, SearchResult
-from .objects import Publication, SearchUrlArgs
+from .objects import Datadump, Publication, SearchUrlArgs
 from .utilities import get_href
 
 log = getLogger("libgen")
@@ -22,19 +22,27 @@ RE_TOPIC_HREF = re.compile(r"topicid(\d*)")
 
 
 class GenLibRusEc(Agent):
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        search_url="http://gen.lib.rus.ec/search.php",
+        topics_url="http://gen.lib.rus.ec/",
+        datadumps_url="https://libgen.is/dbdumps/",
+    ) -> None:
         super().__init__(
-            search_url="http://gen.lib.rus.ec/search.php",
-            topics_url="http://gen.lib.rus.ec/",
+            search_url=search_url, topics_url=topics_url, datadumps_url=datadumps_url
         )
 
-    def get_page_url(self, search_term: str, args: SearchUrlArgs) -> str:
-        urlargs = {"req": search_term, "page": args.page}
+    def get_page_url(self, search_term: Optional[str], args: SearchUrlArgs) -> str:
+        urlargs: Dict[str, Any] = {"page": args.page}
 
+        if search_term:
+            urlargs["req"] = search_term
         if args.limit in (25, 50, 100):
             urlargs["res"] = args.limit
         if args.topic_id:
             urlargs["req"] = f"topicid{args.topic_id}"
+        if args.search_mode:
+            urlargs["mode"] = args.search_mode.value
 
         return f"{self.search_url}?{urlencode(urlargs)}"
 
@@ -129,11 +137,24 @@ class GenLibRusEc(Agent):
         }
         return attrs
 
+    def _extract_dbdumps_attrs(self, cell):
+        columns = cell.find_all("td")
+        if not columns:
+            return {}
+        return {
+            "name": columns[0].text,
+            "url": get_href(columns[0]),
+            "last_modified": columns[1].text,
+            "size": columns[2].text,
+            "description": columns[3].text,
+        }
 
-class LibGenLc(GenLibRusEc):
-    # TODO: Implement https://libgen.lc/
-    pass
-
-class LibGenMe(GenLibRusEc):
-    # TODO: Implement https://libgen.me/
-    pass
+    def parse_datadumps(self, page):
+        # the first three rows are table header and directory buttons
+        dumps = []
+        for row in page.find_all("tr")[3:]:
+            if row:
+                attrs = self._extract_dbdumps_attrs(row)
+                if attrs:
+                    dumps.append(Datadump(**attrs))
+        return dumps

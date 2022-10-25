@@ -1,18 +1,21 @@
 import logging
-from logging import getLogger
-from typing import Dict, Optional
+from pkgutil import get_data
 
 from fastapi import FastAPI
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse
-from models import MetaPublicationModel
+from logging import getLogger
+from typing import Callable, Dict, List, Optional
+from misc import cache_cascade, set_cache
+from exceptions import ErrorJsonResponse
+from models import MetaPublicationModel, LibraryAll, LibraryZlib, MetaDatadumpModel
 from scrapers.agent import Agent
-from scrapers.libgen import GenLibRusEc, LibGenLc
-from scrapers.objects import SearchUrlArgs
+from scrapers.genlibrusec import GenLibRusEc
+from scrapers.libgenlc import LibGenLc
+from scrapers.objects import SearchUrlArgs, SearchMode
 
-from freebooksapi.models import LibraryAll
-
-FREEBOOKSAPI = FastAPI()
+FREEBOOKSAPI = FastAPI(
+    title="FreeBooksAPI",
+    description="A comprehensive (unofficial) API service for gen.lib.rus.ec , libgen.lc, Z-Library and libgen.me.",
+)
 
 ##### Logging
 _loggers = ["main", "libgen", "zlibrary"]
@@ -34,61 +37,81 @@ LIBRARY_AGENTS: Dict[str, Agent] = {
     LibraryAll.libgenlc.value: LibGenLc(),
 }
 
-CURRENT_VERSION = "v1"
-VERSIONS = [CURRENT_VERSION]
+
+@FREEBOOKSAPI.get("/{library}/search-fulltext", response_model=MetaPublicationModel)
+async def get_publications_fulltext(library: LibraryZlib):
+    """
+    Perform a full text search to retrieve a publication.
+    (only available on z-library)
+    """
+    raise NotImplementedError
 
 
-class ErrorJsonResponse(JSONResponse):
-    def __init__(self, status_code: int, status_name: str, message: str) -> None:
-        super().__init__(
-            jsonable_encoder(
-                {
-                    "error": {
-                        "code": status_code,
-                        "message": message,
-                        "status": status_name,
-                    }
-                }
-            ),
-            status_code=status_code,
-        )
+async def cache_get_datadumps(cache_id: str):
+    log.info(f'Retrieving cache information under "{cache_id}"')
+    for name, lib in LIBRARY_AGENTS.items():
+        canonical_name = cache_id.format(library=name)
+        dbdumps = await lib.get_datadumps()
+        log.info(f'Filled cache  "{canonical_name}" with "{len(dbdumps or [])}" items.')
+        set_cache(canonical_name, dbdumps)
 
 
-@FREEBOOKSAPI.on_event("startup")
-async def startup_event():
-    pass
+@FREEBOOKSAPI.get("/{library}/datadumps", response_model=MetaDatadumpModel)
+@cache_cascade(
+    cache_id="{library}/datadumps",
+    cache_every_h=24,
+    release_after_h=48,
+    caching_task=cache_get_datadumps,
+    pass_result=True,
+)
+def get_datadumps(library: LibraryAll):
+    # `get_cached` attribute is set by the decorator
+    dbdumps = get_datadumps.get_cached(library)
+    return {
+        "datadump_url": LIBRARY_AGENTS[library.value].datadumps_url,
+        "total_results": len(dbdumps),
+        "results": (item.__dict__ for item in dbdumps),
+    }
 
 
-@FREEBOOKSAPI.get(
-    "/{library}/topics",
+async def cache_get_enlisted_topics(cache_id: str):
+    log.info(f'Retrieving cache information under "{cache_id}"')
+    for name, lib in LIBRARY_AGENTS.items():
+        canonical_name = cache_id.format(library=name)
+        topics = await lib.get_topics()
+        log.info(f'Filled cache  "{canonical_name}" with "{len(topics or [])}" items.')
+        set_cache(canonical_name, topics)
+
+
+@FREEBOOKSAPI.get("/{library}/topics", response_model=Dict[str, str])
+@cache_cascade(
+    cache_id="{library}/topics",
+    cache_every_h=24,
+    release_after_h=48,
+    caching_task=cache_get_enlisted_topics,
+    pass_result=False,
 )
 async def get_enlisted_topics(library: LibraryAll):
     """
     Retrieve available topics for the library. The topic IDs fetched here can
     be used in the `/search` endpoint via `topic_id`.
     """
-    return await LIBRARY_AGENTS[library].get_topics()
-
-
-@FREEBOOKSAPI.get(
-    "/{library}/last-added",
-)
-def get_last_added(library: LibraryAll):
-    """
-    Retrieve most recently added publications.
-    """
-    pass
+    # the data response needed for this endpoint is fetched from cache
 
 
 @FREEBOOKSAPI.get(
     "/{library}/aliases",
     response_description="Library URL Aliases.",
+    response_model=List[str],
 )
 def get_aliases(library: LibraryAll):
     """
     Retrieve existing aliases for the given libraries.
     """
-    return ["http://libgen.rs/", "http://libgen.is/", "http://libgen.st/"]
+    if library is LibraryAll.libgen:
+        return ["http://libgen.rs/", "http://libgen.is/", "http://libgen.st/"]
+    elif library is LibraryAll.libgenlc:
+        return ["http://libgen.lc/", "http://libgen.gs/", "http://libgen.li/"]
 
 
 @FREEBOOKSAPI.get(
@@ -96,31 +119,39 @@ def get_aliases(library: LibraryAll):
     response_description="A list of publications for the given query.",
     response_model=MetaPublicationModel,
 )
-def get_publications(
+async def get_publications(
     library: LibraryAll,
-    query: str,
+    query: Optional[str] = None,
     topic_id: Optional[int] = None,
     limit: int = 25,
     offset: int = 0,
     lang: Optional[str] = None,
     page: int = 1,
+    search_mode: Optional[SearchMode] = None,
 ):
     """
     Retrieve all publications under a query.
 
-    To get all publications under a specific topic, you can specify the query
-    as `'*'` with a valid topic id.
+    To get all publications under a specific topic, you can specify a valid topic id.
+    To get all latest publications, specify search_mode as last.
     """
-    if query == "*" and topic_id is None:
+    if query is None and (topic_id is None or search_mode is None):
         return ErrorJsonResponse(
-            404, "BADARGUMENT", f"You cannot use the '*' query without a topic id."
+            404,
+            "BADARGUMENT",
+            f"You cannot use leave the query empty without a topic id or a search mode.",
         )
 
     agent = LIBRARY_AGENTS[library.value]
-    result = agent.query(
+    result = await agent.query(
         query,
         SearchUrlArgs(
-            lang=lang, page=page, topic_id=topic_id, limit=limit, offset=offset
+            lang=lang,
+            page=page,
+            topic_id=topic_id,
+            limit=limit,
+            offset=offset,
+            search_mode=search_mode,
         ),
     )
     if not result:

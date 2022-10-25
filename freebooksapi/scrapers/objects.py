@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from logging import getLogger
 from typing import Dict, List, Optional, Tuple
 
@@ -27,6 +28,10 @@ class Publication:
     mirrors: Dict[str, str]
 
 
+class SearchMode(str, Enum):
+    last = "last"
+
+
 @dataclass(frozen=True)
 class SearchUrlArgs:
     lang: Optional[str]
@@ -34,6 +39,7 @@ class SearchUrlArgs:
     limit: int
     offset: int
     topic_id: Optional[int]
+    search_mode: Optional[SearchMode]
 
 
 @dataclass(frozen=True)
@@ -47,3 +53,12 @@ class SearchResult:
         if len(pubs) > limit:
             return pubs[:limit]
         return pubs
+
+
+@dataclass(frozen=True)
+class Datadump:
+    name: str
+    url: str
+    last_modified: str
+    size: str
+    description: str
