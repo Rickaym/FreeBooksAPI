@@ -4,27 +4,37 @@ from typing import Any, Dict
 
 from .genlibrusec import GenLibRusEc
 from .agent import SearchResult
-from .objects import Publication, SearchUrlArgs
+from .objects import Publication, SearchUrlArgs,Datadump
+from .utilities import get_href
 
 
 class LibGenLc(GenLibRusEc):
     def __init__(self) -> None:
-        super().__init__(search_url="https://libgen.lc/index.php")
-
-    # TODO:Last Added Publiciations(link = https://libgen.lc/index.php?req=fmode:last&topics1=all)
+        super().__init__(
+        search_url="https://libgen.lc/index.php",
+        datadumps_url="https://libgen.lc/dirlist.php?dir=dbdumps"
+        )
+    #The topics and topic ids of the parent library and this library is the same so do not change the topics_url
     def get_page_url(self, search_term: str, args: SearchUrlArgs) -> str:
         # Gmode is needed to get the acutal table inside the html instead of a dummy html
         urlargs = {"req": search_term, "page": args.page, "gmode": "on"}
         if args.limit in (25, 50, 100):
             urlargs["res"] = args.limit
         if args.topic_id:
+            #Booktopicid can be combined with the name to be more specific
+            search_term = search_term+ " "+ f"booktopicid:{args.topic_id}" if search_term else f"booktopicid:{args.topic_id}"
             urlargs["req"] = f"booktopicid:{args.topic_id}"
+        if args.search_mode:
+            #Fmode cannot be combined with name or booktopicid so get the lastest book only
+            search_term = f"fmode:{args.search_mode.value}"
+            urlargs['topics1'] = 'all'
+        urlargs["req"] = search_term
         return f"{self.search_url}?{urlencode(urlargs)}"
-
     def parse_result(self, page):
         tables = page.find_all("table")
         files_count = page.find_all("ul")[1].find("span")
-        total_files = files_count.text if files_count else "0"
+        #If total_files is not there the amount of files is not known(usually occurs when getting last added files)
+        total_files = files_count.text if files_count else "??"
         results = []
         if int(total_files) > 0:
             rows = tables[1].find_all("tr")
@@ -37,7 +47,6 @@ class LibGenLc(GenLibRusEc):
                     continue
                 results.append(Publication(**attrs))
         return SearchResult(results, int(total_files), (0, 0))
-
     def _extract_attributes(self, cells) -> Dict[str, Any]:
         attrs: Dict[str, Any] = {
             "edition": None,
@@ -98,3 +107,22 @@ class LibGenLc(GenLibRusEc):
             mirrors[name] = link.get("href")
         attrs["mirrors"] = mirrors
         return attrs
+    def _extract_dbdumps_attrs(self, cell):
+        columns = cell.find_all("td")
+        if not columns:
+            return {}
+        return {
+            "name": columns[0].text,
+            "url": "https://libgen.lc/"+get_href(columns[0]),
+            "last_modified": columns[2].text,
+            "size": f"{round(int(columns[1].text)/(1024*1024),2)}Mb",
+            "description": "",
+        }
+    def parse_datadumps(self, page):
+        dumps = []
+        for row in page.find_all("tr")[1:]:
+            if row:
+                attrs = self._extract_dbdumps_attrs(row)
+                if attrs:
+                    dumps.append(Datadump(**attrs))
+        return dumps
