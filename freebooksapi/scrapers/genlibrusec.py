@@ -52,6 +52,7 @@ class GenLibRusEc(Agent):
         return {
             a.text: int(RE_TOPIC_HREF.search(a.get("href")).groups()[0]) for a in hrefs
         }
+
     def parse_result(self, page):
         tables = page.find_all("table")
 
@@ -116,7 +117,7 @@ class GenLibRusEc(Agent):
         attrs["title"] = cells[2].text.strip()
 
         attrs["publisher"] = cells[3].text or None
-        attrs["year"] = int(cells[4].text) or None
+        attrs["year"] = int(cells[4].text) if cells[4].text.isnumeric() else None
         attrs["pages"] = cells[5].text
         attrs["lang"] = cells[6].text
         attrs["size"] = cells[7].text
@@ -128,12 +129,7 @@ class GenLibRusEc(Agent):
         bookfi_net_url = get_href(cells[12])
 
         # TODO: each of these _url can be None
-        attrs["mirrors"] = {
-            "libgen.io": libgen_io_url,
-            "libgen.pw": libgen_pw_url,
-            "b-ok.org": bok_org_url,
-            "bookfi.net": bookfi_net_url,
-        }
+        attrs["mirrors"] = [libgen_io_url, libgen_pw_url, bok_org_url, bookfi_net_url]
         return attrs
 
     def _extract_dbdumps_attrs(self, cell):
@@ -147,6 +143,7 @@ class GenLibRusEc(Agent):
             "size": columns[2].text,
             "description": columns[3].text,
         }
+
     def parse_datadumps(self, page):
         # the first three rows are table header and directory buttons
         dumps = []
