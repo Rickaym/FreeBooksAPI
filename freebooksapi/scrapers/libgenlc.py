@@ -4,36 +4,42 @@ from typing import Any, Dict
 
 from .genlibrusec import GenLibRusEc
 from .agent import SearchResult
-from .objects import Publication, SearchUrlArgs,Datadump
+from .objects import Publication, SearchUrlArgs, Datadump
 from .utilities import get_href
 
 
 class LibGenLc(GenLibRusEc):
     def __init__(self) -> None:
         super().__init__(
-        search_url="https://libgen.lc/index.php",
-        datadumps_url="https://libgen.lc/dirlist.php?dir=dbdumps"
+            search_url="https://libgen.lc/index.php",
+            datadumps_url="https://libgen.lc/dirlist.php?dir=dbdumps",
         )
-    #The topics and topic ids of the parent library and this library is the same so do not change the topics_url
+
+    # The topics and topic ids of the parent library and this library is the same so do not change the topics_url
     def get_page_url(self, search_term: str, args: SearchUrlArgs) -> str:
         # Gmode is needed to get the acutal table inside the html instead of a dummy html
         urlargs = {"req": search_term, "page": args.page, "gmode": "on"}
         if args.limit in (25, 50, 100):
             urlargs["res"] = args.limit
         if args.topic_id:
-            #Booktopicid can be combined with the name to be more specific
-            search_term = search_term+ " "+ f"booktopicid:{args.topic_id}" if search_term else f"booktopicid:{args.topic_id}"
+            # Booktopicid can be combined with the name to be more specific
+            search_term = (
+                search_term + " " + f"booktopicid:{args.topic_id}"
+                if search_term
+                else f"booktopicid:{args.topic_id}"
+            )
             urlargs["req"] = f"booktopicid:{args.topic_id}"
         if args.search_mode:
-            #Fmode cannot be combined with name or booktopicid so get the lastest book only
+            # Fmode cannot be combined with name or booktopicid so get the lastest book only
             search_term = f"fmode:{args.search_mode.value}"
-            urlargs['topics1'] = 'all'
+            urlargs["topics1"] = "all"
         urlargs["req"] = search_term
         return f"{self.search_url}?{urlencode(urlargs)}"
+
     def parse_result(self, page):
         tables = page.find_all("table")
         files_count = page.find_all("ul")[1].find("span")
-        #If total_files is not there the amount of files is not known(usually occurs when getting last added files)
+        # If total_files is not there the amount of files is not known(usually occurs when getting last added files)
         total_files = files_count.text if files_count else "??"
         results = []
         if int(total_files) > 0:
@@ -47,6 +53,7 @@ class LibGenLc(GenLibRusEc):
                     continue
                 results.append(Publication(**attrs))
         return SearchResult(results, int(total_files), (0, 0))
+
     def _extract_attributes(self, cells) -> Dict[str, Any]:
         attrs: Dict[str, Any] = {
             "edition": None,
@@ -99,25 +106,21 @@ class LibGenLc(GenLibRusEc):
         attrs["pages"] = cells[1 + offset].text.split("/")[-1].strip()
         attrs["size"] = cells[2 + offset].text
         attrs["extension"] = cells[3 + offset].text
-        mirrors = {}
-        for link in cells[4 + offset].find_all("a"):
-            name = link.get("title")
-            # Only the mirror with booksdl.org doesnt have title so if the name is empty assume it is from bookdl.org
-            name = "booksdl.org" if name == "" else name
-            mirrors[name] = link.get("href")
-        attrs["mirrors"] = mirrors
+        attrs["mirrors"] = [link.get("href") for link in cells[4 + offset].find_all("a")]
         return attrs
+
     def _extract_dbdumps_attrs(self, cell):
         columns = cell.find_all("td")
         if not columns:
             return {}
         return {
             "name": columns[0].text,
-            "url": "https://libgen.lc/"+get_href(columns[0]),
+            "url": "https://libgen.lc/" + get_href(columns[0]),
             "last_modified": columns[2].text,
             "size": f"{round(int(columns[1].text)/(1024*1024),2)}Mb",
             "description": "",
         }
+
     def parse_datadumps(self, page):
         dumps = []
         for row in page.find_all("tr")[1:]:
