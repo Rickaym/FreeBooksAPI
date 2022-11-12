@@ -2,8 +2,9 @@ import abc
 from abc import ABC
 from logging import getLogger
 from typing import Any, Dict, List, Optional
+from asyncio import iscoroutinefunction
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, SoupStrainer
 
 from .ahttp import get_page
 from .objects import Datadump, SearchResult, SearchUrlArgs
@@ -18,11 +19,21 @@ class Agent(ABC):
     """
 
     def __init__(
-        self, search_url: str, topics_url: str, datadumps_url: str
+        self,
+        search_url: str,
+        topics_url: str,
+        datadumps_url: str,
+        *,
+        search_strain: Optional[SoupStrainer] = None,
+        topics_strain: Optional[SoupStrainer] = None,
+        datadumps_strain: Optional[SoupStrainer] = None
     ) -> None:
         self.search_url = search_url
         self.topics_url = topics_url
         self.datadumps_url = datadumps_url
+        self.search_strain = search_strain
+        self.topics_strain = topics_strain
+        self.datadumps_strain = datadumps_strain
 
     async def query(self, search_term: Optional[str], urlargs: SearchUrlArgs):
         """
@@ -38,17 +49,23 @@ class Agent(ABC):
             raise ValueError("Your search term must be at least 3 characters long.")
 
         page_url = self.get_page_url(search_term, urlargs)
-        page = await get_page(page_url)
-        return self.parse_result(page)
+        page = await get_page(page_url, self.search_strain)
+        return (
+            await self.parse_result(page)
+            if iscoroutinefunction(self.parse_result)
+            else self.parse_result(page)
+        )
 
     async def get_topics(self):
-        return self.parse_topics(await get_page(self.topics_url))
+        return self.parse_topics(await get_page(self.topics_url, self.topics_strain))
 
     async def get_datadumps(self):
-        return self.parse_datadumps(await get_page(self.datadumps_url))
+        return self.parse_datadumps(
+            await get_page(self.datadumps_url, self.datadumps_strain)
+        )
 
     @abc.abstractmethod
-    def get_page_url(self, search_term: Optional[str], urlargs: SearchUrlArgs) -> str:
+    def get_page_url(self, search_term: Optional[str]) -> str:
         """
         Encode all args into the search URL.
 
