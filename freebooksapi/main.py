@@ -1,13 +1,14 @@
 import logging
-from pkgutil import get_data
 
 from fastapi import FastAPI
 from logging import getLogger
-from typing import Callable, Dict, List, Optional
+from typing import Dict, List, Optional
 from misc import cache_cascade, set_cache
 from exceptions import ErrorJsonResponse
-from models import MetaPublicationModel, LibraryAll, LibraryZlib, MetaDatadumpModel
+from models import MetaPublicationModel, LibraryAll, MetaDatadumpModel
+
 from scrapers.agent import Agent
+from scrapers.planetebooks import PlanetEBooks
 from scrapers.genlibrusec import GenLibRusEc
 from scrapers.libgenlc import LibGenLc
 from scrapers.objects import SearchUrlArgs, SearchMode
@@ -35,19 +36,13 @@ log = getLogger("main")
 LIBRARY_AGENTS: Dict[str, Agent] = {
     LibraryAll.libgen.value: GenLibRusEc(),
     LibraryAll.libgenlc.value: LibGenLc(),
+    LibraryAll.planetebooks.value: PlanetEBooks(),
 }
 
-
-@FREEBOOKSAPI.get("/{library}/search-fulltext", response_model=MetaPublicationModel)
-async def get_publications_fulltext(library: LibraryZlib):
-    """
-    Perform a full text search to retrieve a publication.
-    (only available on z-library)
-    """
-    raise NotImplementedError
+PERMITTED_FIELDS = "id,authors,isbn,edition,series,title,publisher,year,pages,lang,size,extension,mirrors"
 
 
-async def cache_get_datadumps(cache_id: str):
+async def cache_get_torrent_datadumps(cache_id: str):
     log.info(f'Retrieving cache information under "{cache_id}"')
     for name, lib in LIBRARY_AGENTS.items():
         canonical_name = cache_id.format(library=name)
@@ -61,12 +56,15 @@ async def cache_get_datadumps(cache_id: str):
     cache_id="{library}/datadumps",
     cache_every_h=24,
     release_after_h=48,
-    caching_task=cache_get_datadumps,
+    caching_task=cache_get_torrent_datadumps,
     pass_result=True,
 )
-def get_datadumps(library: LibraryAll):
+def get_torrent_datadumps(library: LibraryAll):
+    """
+    Retrieve all datadump URLs.
+    """
     # `get_cached` attribute is set by the decorator
-    dbdumps = get_datadumps.get_cached(library)
+    dbdumps = get_torrent_datadumps.get_cached(library)
     return {
         "datadump_url": LIBRARY_AGENTS[library.value].datadumps_url,
         "total_results": len(dbdumps),
@@ -74,7 +72,7 @@ def get_datadumps(library: LibraryAll):
     }
 
 
-async def cache_get_enlisted_topics(cache_id: str):
+async def cache_get_topics(cache_id: str):
     log.info(f'Retrieving cache information under "{cache_id}"')
     for name, lib in LIBRARY_AGENTS.items():
         canonical_name = cache_id.format(library=name)
@@ -88,10 +86,10 @@ async def cache_get_enlisted_topics(cache_id: str):
     cache_id="{library}/topics",
     cache_every_h=24,
     release_after_h=48,
-    caching_task=cache_get_enlisted_topics,
+    caching_task=cache_get_topics,
     pass_result=False,
 )
-async def get_enlisted_topics(library: LibraryAll):
+async def get_topics(library: LibraryAll):
     """
     Retrieve available topics for the library. The topic IDs fetched here can
     be used in the `/search` endpoint via `topic_id`.
@@ -104,7 +102,7 @@ async def get_enlisted_topics(library: LibraryAll):
     response_description="Library URL Aliases.",
     response_model=List[str],
 )
-def get_aliases(library: LibraryAll):
+def get_torrent_aliases(library: LibraryAll):
     """
     Retrieve existing aliases for the given libraries.
     """
@@ -119,7 +117,7 @@ def get_aliases(library: LibraryAll):
     response_description="A list of publications for the given query.",
     response_model=MetaPublicationModel,
 )
-async def get_publications(
+async def get_book_or_articles(
     library: LibraryAll,
     query: Optional[str] = None,
     topic_id: Optional[int] = None,
@@ -130,9 +128,9 @@ async def get_publications(
     search_mode: Optional[SearchMode] = None,
 ):
     """
-    Retrieve all publications under a query.
+    Retrieve all book, article, and magazine publications through a query.
 
-    To get all publications under a specific topic, you can specify a valid topic id.
+    To get publications under a specific topic, you can specify a valid topic id.
     To get all latest publications, specify search_mode as last.
     """
     if query is None and (topic_id is None or search_mode is None):
@@ -156,7 +154,7 @@ async def get_publications(
     )
     if not result:
         return ErrorJsonResponse(
-            404, "NOTFOUND", f"No publications founder under '{query}'."
+            404, "NOTFOUND", f"No publications found under '{query}'."
         )
 
     if offset > len(result.publications):
