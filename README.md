@@ -1,16 +1,12 @@
 # FreeBooksAPI
 
-```diff
-- This is currently under heavy development.
-```
-
-A comprehensive (unofficial) API service for [planet-ebooks](https://www.planetebook.com/), [gen.lib.rus.ec/libgen.rs](http://gen.lib.rus.ec/) , [libgen.lc/libgen.li](http://libgen.lc/), [Z-Library](http://b-ok.org/) and [libgen.me](http://libgen.me/) (essentially all the mirrors [here](https://forum.mhut.org/viewtopic.php?p=9000)).
+A speedy (unofficial) API service for [planet-ebooks](https://www.planetebook.com/), [gen.lib.rus.ec/libgen.rs](http://gen.lib.rus.ec/), [libgen.lc/libgen.li](http://libgen.lc/), providing access to retrieving free book downloading URLs, publication metadata, and many more!
 
 ### Features
 
-- Searching books by name, author name, topic and the likes.
-- Performing a full text search for books
-- Retrieving downloadable/torrent links for book
+- Searching books by name, author name, topic and etc...
+- Retrieve free download URLs for books and publications
+- Retrieve torrent datadumps for free books
 
 For contributions: read [contributions.md](./contributions.md).
 
