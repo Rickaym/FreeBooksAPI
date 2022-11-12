@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from logging import getLogger
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 log = getLogger("main")
 
@@ -13,19 +13,19 @@ class Publication:
     mangas and any sort of web-publications.
     """
 
-    id: int
-    authors: str
-    isbn: str
-    edition: str
-    series: str
+    id: Union[str, int]
+    authors: Optional[str]
+    isbn: Optional[List[str]]
+    edition: Optional[str]
+    series: Optional[str]
     title: str
-    publisher: str
-    year: int
+    publisher: Optional[str]
+    year: Optional[Union[int, str]]
     pages: str
     lang: str
     size: str
     extension: str
-    mirrors: Dict[str, str]
+    mirrors: List[str]
 
 
 class SearchMode(str, Enum):
