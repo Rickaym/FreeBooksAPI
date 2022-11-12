@@ -98,6 +98,7 @@ def cache_cascade(
     release_after_h: int,
     caching_task: Any,
     pass_result: bool,
+    precache: bool=False
 ):
     """
     Triggers a cascade of tasks when the end-point is hit with an
@@ -110,19 +111,19 @@ def cache_cascade(
         nonlocal released
         released = False
 
-    def on_release():
-        nonlocal released
-        released = True
+        def on_release():
+            nonlocal released
+            released = True
 
         repeat_every(
-        func=functools.partial(caching_task, cache_id),
-        # set released to True after max iter is reached
-        on_release=on_release,
-        seconds=cache_every_h * 60 * 60,
-        raise_exceptions=True,
-        logger=log,
-        max_repetitions=release_after_h // cache_every_h,
-    )
+            func=functools.partial(caching_task, cache_id),
+            # set released to True after max iter is reached
+            on_release=on_release,
+            seconds=cache_every_h * 60 * 60,
+            raise_exceptions=True,
+            logger=log,
+            max_repetitions=release_after_h // cache_every_h,
+        )
 
     def predicate(func):
         # The wrapped function completely discards the implemetation of the
@@ -150,6 +151,7 @@ def cache_cascade(
             wrapped.get_cached = get_cached
         return wrapped
 
-    # call caching function once beginning
-    create_task(caching_task(cache_id))
+    if precache:
+        # call caching function once beginning
+        create_task(caching_task(cache_id))
     return predicate
