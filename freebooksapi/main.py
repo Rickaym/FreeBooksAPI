@@ -5,7 +5,7 @@ from logging import getLogger
 from typing import Dict, List, Optional
 from misc import cache_cascade, set_cache
 from exceptions import ErrorJsonResponse
-from models import MetaPublicationModel, LibraryAll, MetaDatadumpModel
+from models import MetaPublicationModel, LibraryAll, LibraryLibgen, MetaDatadumpModel
 
 from scrapers.agent import Agent
 from scrapers.planetebooks import PlanetEBooks
@@ -89,7 +89,7 @@ async def cache_get_topics(cache_id: str):
     caching_task=cache_get_topics,
     pass_result=False,
 )
-async def get_topics(library: LibraryAll):
+async def get_topics(library: LibraryLibgen):
     """
     Retrieve available topics for the library. The topic IDs fetched here can
     be used in the `/search` endpoint via `topic_id`.
@@ -106,10 +106,7 @@ def get_torrent_aliases(library: LibraryAll):
     """
     Retrieve existing aliases for the given libraries.
     """
-    if library is LibraryAll.libgen:
-        return ["http://libgen.rs/", "http://libgen.is/", "http://libgen.st/"]
-    elif library is LibraryAll.libgenlc:
-        return ["http://libgen.lc/", "http://libgen.gs/", "http://libgen.li/"]
+    return LIBRARY_AGENTS[library.value].get_aliases()
 
 
 @FREEBOOKSAPI.get(
