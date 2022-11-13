@@ -2,7 +2,6 @@ import asyncio
 from logging import getLogger
 
 import aiohttp
-from aiohttp_socks import ChainProxyConnector
 from bs4 import BeautifulSoup as soup
 
 logger = getLogger("http")
@@ -33,20 +32,8 @@ async def get(url, jar=None, proxy_list=None):
         raise LoopError("Asyncio loop had been closed before request could finish.")
 
 
-async def get_page(url, proxy_list=[]):
-    return soup(await get(url, proxy_list=proxy_list), features="lxml")
-
-
-async def post(url, data, proxy_list=None):
-    try:
-        async with aiohttp.ClientSession(
-            headers=HEAD,
-            timeout=TIMEOUT,
-            cookie_jar=aiohttp.CookieJar(),
-            connector=ChainProxyConnector.from_urls(proxy_list) if proxy_list else None,
-        ) as sess:
-            logger.info("POST %s" % url)
-            async with sess.post(url, data=data) as resp:
-                return (await resp.text(), sess.cookie_jar)
-    except asyncio.exceptions.CancelledError:
-        raise LoopError("Asyncio loop had been closed before request could finish.")
+async def get_page(url, strain=None, proxy_list=[]):
+    con = await get(url, proxy_list=proxy_list)
+    with open("test.html", "w", encoding="utf-8") as f:
+        f.write(con)
+    return soup(con, features="lxml", parse_only=strain)
