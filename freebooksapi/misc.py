@@ -98,11 +98,11 @@ def cache_cascade(
     release_after_h: int,
     caching_task: Any,
     pass_result: bool,
-    precache: bool=False
+    precache: bool=True
 ):
     """
     Triggers a cascade of tasks when the end-point is hit with an
-    call. The tasks is looped every given hour and it is released after a
+    call, and the tasks is looped every given hour and it is released after a
     maximum amount of hours of its last known call.
     """
     released = True
@@ -153,5 +153,10 @@ def cache_cascade(
 
     if precache:
         # call caching function once beginning
-        create_task(caching_task(cache_id))
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            log.error("Missing asyncio runtime loop to initiate precaching.")
+        else:
+            create_task(caching_task(cache_id))
     return predicate
