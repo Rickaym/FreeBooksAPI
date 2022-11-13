@@ -18,11 +18,8 @@ jobs:
       - name : Running export_docs.py
         run: python freebooksapi/export_docs.py
 
-      - name: Commit index.html file
-        run: |
-          git config --global user.name 'Rickaym'
-          git config --global user.email 'psmtitant@gmail.com'
-          git add .
-          git commit -am "refactor: automated static redoc generation"
-          git push origin master
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "refactor: automated static redoc generation"
+          push_options: --force
 
