@@ -9,5 +9,6 @@ A speedy (unofficial) API service for [planet-ebooks](https://www.planetebook.co
 - Retrieve torrent datadumps for free books
 
 For contributions: read [contributions.md](./contributions.md).
+Static API Redoc at: http://pyaesonemyo.me/FreeBooksAPI/
 
 Made with <3 by the Collaborators
