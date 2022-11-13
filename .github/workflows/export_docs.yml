@@ -1,4 +1,4 @@
-name: Generating readme file
+name: Generating static Redoc documentation
 on:
   push:
     branches:
