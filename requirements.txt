@@ -2,4 +2,4 @@ fastapi
 uvicorn
 aiohttp
 lxml
-beautifulsoup
+beautifulsoup4
