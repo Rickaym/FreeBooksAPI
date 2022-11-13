@@ -13,7 +13,7 @@ jobs:
           python-version: '3.9.7'
 
       - name : Running export_docs.py
-        run: python export_docs.py
+        run: python freebooksapi/export_docs.py
 
       - name: Commit index.html file
         run: |
