@@ -30,5 +30,5 @@ if __name__ == "__main__":
     </html>
     """
 
-    with open(f"index.html", "w") as fd:
+    with open(f"../index.html", "w") as fd:
         fd.write(HTML_TEMPLATE % json.dumps(FREEBOOKSAPI.openapi()))
