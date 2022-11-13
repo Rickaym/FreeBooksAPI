@@ -16,7 +16,7 @@ class LibGenLc(GenLibRusEc):
         )
 
     # The topics and topic ids of the parent library and this library is the same so do not change the topics_url
-    def get_page_url(self, search_term: str, args: SearchUrlArgs) -> str:
+    def get_search_url(self, search_term: str, args: SearchUrlArgs) -> str:
         # Gmode is needed to get the acutal table inside the html instead of a dummy html
         urlargs = {"req": search_term, "page": args.page, "gmode": "on"}
         if args.limit in (25, 50, 100):
@@ -106,7 +106,9 @@ class LibGenLc(GenLibRusEc):
         attrs["pages"] = cells[1 + offset].text.split("/")[-1].strip()
         attrs["size"] = cells[2 + offset].text
         attrs["extension"] = cells[3 + offset].text
-        attrs["mirrors"] = [link.get("href") for link in cells[4 + offset].find_all("a")]
+        attrs["mirrors"] = [
+            link.get("href") for link in cells[4 + offset].find_all("a")
+        ]
         return attrs
 
     def _extract_dbdumps_attrs(self, cell):
@@ -129,3 +131,6 @@ class LibGenLc(GenLibRusEc):
                 if attrs:
                     dumps.append(Datadump(**attrs))
         return dumps
+
+    def get_aliases(self):
+        return ["http://libgen.lc/", "http://libgen.gs/", "http://libgen.li/"]

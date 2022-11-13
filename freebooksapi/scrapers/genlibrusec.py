@@ -32,7 +32,7 @@ class GenLibRusEc(Agent):
             search_url=search_url, topics_url=topics_url, datadumps_url=datadumps_url
         )
 
-    def get_page_url(self, search_term: Optional[str], args: SearchUrlArgs) -> str:
+    def get_search_url(self, search_term: Optional[str], args: SearchUrlArgs) -> str:
         urlargs: Dict[str, Any] = {"page": args.page}
 
         if search_term:
@@ -153,3 +153,6 @@ class GenLibRusEc(Agent):
                 if attrs:
                     dumps.append(Datadump(**attrs))
         return dumps
+
+    def get_aliases(self):
+        return ["http://libgen.rs/", "http://libgen.is/", "http://libgen.st/"]

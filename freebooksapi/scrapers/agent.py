@@ -48,7 +48,7 @@ class Agent(ABC):
         if search_term and len(search_term) < 3:
             raise ValueError("Your search term must be at least 3 characters long.")
 
-        page_url = self.get_page_url(search_term, urlargs)
+        page_url = self.get_search_url(search_term, urlargs)
         page = await get_page(page_url, self.search_strain)
         return (
             await self.parse_result(page)
@@ -56,16 +56,28 @@ class Agent(ABC):
             else self.parse_result(page)
         )
 
+    def get_aliases(self):
+        """
+        Returns a set of aliases for the library.
+
+        :returns: List[str]
+        """
+        raise NotImplementedError
+
     async def get_topics(self):
+        if not self.topics_url:
+            raise NotImplementedError
         return self.parse_topics(await get_page(self.topics_url, self.topics_strain))
 
     async def get_datadumps(self):
+        if not self.datadumps_url:
+            raise NotImplementedError
         return self.parse_datadumps(
             await get_page(self.datadumps_url, self.datadumps_strain)
         )
 
     @abc.abstractmethod
-    def get_page_url(self, search_term: Optional[str]) -> str:
+    def get_search_url(self, search_term: Optional[str], urlargs: SearchUrlArgs) -> str:
         """
         Encode all args into the search URL.
 

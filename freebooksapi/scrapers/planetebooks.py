@@ -1,7 +1,7 @@
 from typing import Optional
 from urllib.parse import urlencode, urlparse
 from bs4 import SoupStrainer
-from .objects import Publication, SearchResult, SearchUrlArgs
+from .objects import Publication, SearchResult, SearchUrlArgs, Datadump
 from .agent import Agent
 from .ahttp import get_page
 from .utilities import get_href
@@ -25,27 +25,34 @@ class PlanetEBooks(Agent):
     ) -> None:
         super().__init__(
             search_url="https://www.planetebook.com/",
-            topics_url="",
-            datadumps_url="",
+            topics_url=None,
+            datadumps_url="https://www.planetebook.com/ebooks/",
             search_strain=SoupStrainer("h2", {"class": "fusion-post-title"}),
+            datadumps_strain=SoupStrainer("p", {"class": "pelistlinks"}),
         )
 
-    def get_page_url(self, search_term: Optional[str], urlargs: SearchUrlArgs) -> str:
+    def get_search_url(self, search_term: Optional[str], urlargs: SearchUrlArgs) -> str:
         # search_term can never be none for this library
         url = f"{self.search_url}?{urlencode({'s': search_term})}"
         return url
 
     def parse_topics(self, page):
-        pass
+        raise NotImplementedError
 
     async def _follow_suburl(self, suburl: str, attrs: dict):
         page = await get_page(suburl, self.suburl_soupstrain)
         year = page.find("h6").text.split(",").pop().strip()
         attrs["year"] = int(year) if year.isnumeric() else year if year else None
-        attrs["mirrors"] = [f"{self.search_url[:-1]}{url.get('href')}" for url in page.find_all("a", {"class": "buttonpe"}, href=True)]
+        attrs["mirrors"] = [
+            self._join_relative_url(url.get("href"))
+            for url in page.find_all("a", {"class": "buttonpe"}, href=True)
+        ]
+
+    def _join_relative_url(self, relative_url):
+        return f"{self.search_url[:-1]}{relative_url}"
 
     async def parse_result(self, page):
-        covers = page.find_all("h2")
+        covers = page.find_all(self.search_strain)
         found = len(covers)
 
         results = []
@@ -78,4 +85,14 @@ class PlanetEBooks(Agent):
         )
 
     def parse_datadumps(self, page):
-        raise NotImplementedError
+        items = page.find_all(self.datadumps_strain)
+        return [
+            Datadump(
+                name=i.find("a").text,
+                url=self._join_relative_url(get_href(i)),
+                last_modified="N/A",
+                size="N/A",
+                description=i.text,
+            )
+            for i in items
+        ]
