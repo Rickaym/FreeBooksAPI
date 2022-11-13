@@ -1,0 +1,26 @@
+name: Generating readme file
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name : Running export_docs.py
+        run: python export_docs.py
+
+      - name: Commit index.html file
+        run: |
+          git config --global user.name 'Rickaym'
+          git config --global user.email 'psmtitant@gmail.com'
+          git add .
+          git commit -am "refactor: automated static redoc generation"
+          git push origin master
+
