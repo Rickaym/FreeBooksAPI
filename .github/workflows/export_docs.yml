@@ -12,6 +12,9 @@ jobs:
         with:
           python-version: '3.9.7'
 
+      - name : Fetching dependencies
+        run: python -m pip install -r requirements.txt
+
       - name : Running export_docs.py
         run: python freebooksapi/export_docs.py
 
