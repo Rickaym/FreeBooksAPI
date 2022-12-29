@@ -2,8 +2,7 @@
 
 # FreeBooksAPI 🏛️
 
-<a href="https://freebooksapi.pyaesonemyo.me/latest/docs"><img alt="Extension Homepage" src="https://img.shields.io/badge/swagger-Docs-brightgreen?style=for-the-badge&logo=Swagger
-"></a>
+<a href="https://freebooksapi.pyaesonemyo.me/latest/docs"><img alt="Extension Homepage" src="https://img.shields.io/badge/swagger-docs-brightgreen?style=for-the-badge&logo=swagger"></a>
 <a href="https://freebooksapi.pyaesonemyo.me/latest/redoc"><img alt="Extension Homepage" src="https://img.shields.io/badge/Redoc-docs-purple?style=for-the-badge&logo=Read the Docs"></a>
 
 
