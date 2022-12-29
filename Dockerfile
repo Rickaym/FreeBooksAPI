@@ -1,6 +1,6 @@
 FROM python:3.9.16-bullseye
 
-COPY ./requirements.txt /app/
+COPY requirements.txt /app/
 
 WORKDIR /app
 
