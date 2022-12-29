@@ -1,0 +1,19 @@
+name: Docker Runner
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  run:
+    runs-on: self-hosted
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Container
+        run: docker compose up -d --build
+
+      - name: Cleanup Unused Images
+        run: docker image prune -f
