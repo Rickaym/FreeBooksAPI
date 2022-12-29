@@ -1,7 +1,9 @@
-version: "3.8"
+version: "3.9"
 services:
   main:
     build: .
     container_name: freebooksapi
+    ports:
+      - "80:80"
     volumes:
-      - D:\Programming\Python\Projects\BooksAPI\freebooksapi-data
+      - /root/..freebooksapi-data
