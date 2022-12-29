@@ -3,3 +3,4 @@ uvicorn
 aiohttp
 lxml
 beautifulsoup4
+git+https://github.com/Rickaym/fastapi-versioning.git

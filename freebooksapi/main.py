@@ -1,11 +1,13 @@
 import logging
 
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from logging import getLogger
 from typing import Dict, List, Optional
 from misc import cache_cascade, set_cache
 from exceptions import ErrorJsonResponse
 from models import MetaPublicationModel, LibraryAll, LibraryLibgen, MetaDatadumpModel
+from fastapi_versioning import VersionedFastAPI, version, unversion
 
 from scrapers.agent import Agent
 from scrapers.planetebooks import PlanetEBooks
@@ -15,8 +17,11 @@ from scrapers.objects import SearchUrlArgs, SearchMode
 
 FREEBOOKSAPI = FastAPI(
     title="FreeBooksAPI",
-    description="A comprehensive (unofficial) API service for gen.lib.rus.ec , libgen.lc, Z-Library and libgen.me.",
+    description="A speedy (unofficial) API service for planet-ebooks, gen.lib.rus.ec/libgen.rs, libgen.lc/libgen.li, providing access to retrieving free book downloading URLs, publication metadata, and many more!",
 )
+
+with open("./index.html", "r") as f:
+    INDEX_HTML = f.read()
 
 ##### Logging
 _loggers = ["main", "libgen", "zlibrary"]
@@ -51,7 +56,14 @@ async def cache_get_torrent_datadumps(cache_id: str):
         set_cache(canonical_name, dbdumps)
 
 
+@FREEBOOKSAPI.get("/", response_class=RedirectResponse, include_in_schema=False)
+@unversion()
+def index():
+    return RedirectResponse("https://github.com/Rickaym/FreeBooksAPI/blob/master/README.md")
+
+
 @FREEBOOKSAPI.get("/{library}/datadumps", response_model=MetaDatadumpModel)
+@version(1)
 @cache_cascade(
     cache_id="{library}/datadumps",
     cache_every_h=24,
@@ -82,6 +94,7 @@ async def cache_get_topics(cache_id: str):
 
 
 @FREEBOOKSAPI.get("/{library}/topics", response_model=Dict[str, str])
+@version(1)
 @cache_cascade(
     cache_id="{library}/topics",
     cache_every_h=24,
@@ -102,6 +115,7 @@ async def get_topics(library: LibraryLibgen):
     response_description="Library URL Aliases.",
     response_model=List[str],
 )
+@version(1)
 def get_torrent_aliases(library: LibraryAll):
     """
     Retrieve existing aliases for the given libraries.
@@ -114,6 +128,7 @@ def get_torrent_aliases(library: LibraryAll):
     response_description="A list of publications for the given query.",
     response_model=MetaPublicationModel,
 )
+@version(1)
 async def get_book_or_articles(
     library: LibraryAll,
     q: Optional[str] = None,
@@ -150,9 +165,7 @@ async def get_book_or_articles(
         ),
     )
     if not result:
-        return ErrorJsonResponse(
-            404, "NOTFOUND", f"No publications found under '{q}'."
-        )
+        return ErrorJsonResponse(404, "NOTFOUND", f"No publications found under '{q}'.")
 
     if offset > len(result.publications):
         return ErrorJsonResponse(
@@ -170,3 +183,9 @@ async def get_book_or_articles(
         "page": page,
         "results": (item.__dict__ for item in result.get_publications(offset, limit)),
     }
+
+FREEBOOKSAPI = VersionedFastAPI(FREEBOOKSAPI,
+    version_format='{major}',
+    prefix_format='/v{major}',
+    enable_latest=True
+)
