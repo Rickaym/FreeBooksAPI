@@ -116,7 +116,7 @@ def get_torrent_aliases(library: LibraryAll):
 )
 async def get_book_or_articles(
     library: LibraryAll,
-    query: Optional[str] = None,
+    q: Optional[str] = None,
     topic_id: Optional[int] = None,
     limit: int = 25,
     offset: int = 0,
@@ -130,7 +130,7 @@ async def get_book_or_articles(
     To get publications under a specific topic, you can specify a valid topic id.
     To get all latest publications, specify search_mode as last.
     """
-    if query is None and (topic_id is None or search_mode is None):
+    if q is None and (topic_id is None or search_mode is None):
         return ErrorJsonResponse(
             404,
             "BADARGUMENT",
@@ -139,7 +139,7 @@ async def get_book_or_articles(
 
     agent = LIBRARY_AGENTS[library.value]
     result = await agent.query(
-        query,
+        q,
         SearchUrlArgs(
             lang=lang,
             page=page,
@@ -151,7 +151,7 @@ async def get_book_or_articles(
     )
     if not result:
         return ErrorJsonResponse(
-            404, "NOTFOUND", f"No publications found under '{query}'."
+            404, "NOTFOUND", f"No publications found under '{q}'."
         )
 
     if offset > len(result.publications):

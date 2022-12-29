@@ -158,5 +158,6 @@ def cache_cascade(
         except RuntimeError:
             log.error("Missing asyncio runtime loop to initiate precaching.")
         else:
-            create_task(caching_task(cache_id))
+            pass
+            # create_task(caching_task(cache_id))
     return predicate

@@ -16,7 +16,7 @@ RE_ISBN = re.compile(
 
 RE_EDITION = re.compile(r"(\[[0-9] ed\.\])")
 RE_SEARCH_INFO = re.compile(
-    r"(\d*) files found(?: \| showing results from (\d*) to (\d*))?"
+    r"(\d*) files found [^\|]*(?:\| showing results from (\d*) to (\d*))?"
 )
 RE_TOPIC_HREF = re.compile(r"topicid(\d*)")
 
@@ -70,6 +70,7 @@ class GenLibRusEc(Agent):
         meta_tags = tables[1].find_all("td")
 
         meta_inf = RE_SEARCH_INFO.search(meta_tags[0].text)
+
         if not meta_inf:
             total_files = 0
             show_range = None
@@ -123,13 +124,12 @@ class GenLibRusEc(Agent):
         attrs["size"] = cells[7].text
         attrs["extension"] = cells[8].text
 
-        libgen_io_url = get_href(cells[9])
-        libgen_pw_url = get_href(cells[10])
-        bok_org_url = get_href(cells[11])
-        bookfi_net_url = get_href(cells[12])
+        library_lol = get_href(cells[9])
+        libgen_lc = get_href(cells[10])
+        library_bz = get_href(cells[11])
 
         # TODO: each of these _url can be None
-        attrs["mirrors"] = [libgen_io_url, libgen_pw_url, bok_org_url, bookfi_net_url]
+        attrs["mirrors"] = [library_lol, libgen_lc, library_bz]
         return attrs
 
     def _extract_dbdumps_attrs(self, cell):
