@@ -19,7 +19,7 @@ from scrapers.objects import SearchUrlArgs, SearchMode
 
 FREEBOOKSAPI = FastAPI(
     title="FreeBooksAPI",
-    description="A speedy (unofficial) API service for planet-ebooks, gen.lib.rus.ec/libgen.rs, libgen.lc/libgen.li, providing access to retrieving free book downloading URLs, publication metadata, and many more!",
+    description="A comprehensive (unofficial) API service for planet-ebooks, gen.lib.rus.ec/libgen.rs, libgen.lc/libgen.li, providing access to retrieving free book downloading URLs, publication metadata, and many more!",
 )
 RUNNER_DISHOOK_URL: str = getenv("RUNNER_DISHOOK_URL")  # type: ignore
 
@@ -52,20 +52,22 @@ PERMITTED_FIELDS = "id,authors,isbn,edition,series,title,publisher,year,pages,la
 
 @FREEBOOKSAPI.on_event("startup")
 async def startup_event():
-    async with aiohttp.ClientSession() as session:
-        await session.post(
-            RUNNER_DISHOOK_URL,
-            data={"content": "🚀 Heyall <#1032297422975680512> has been redeployed 💦"},
-        )
+    if RUNNER_DISHOOK_URL is not None:
+        async with aiohttp.ClientSession() as session:
+            await session.post(
+                RUNNER_DISHOOK_URL,
+                data={"content": "🚀 Heyall <#1032297422975680512> has been redeployed 💦"},
+            )
 
 
 @FREEBOOKSAPI.on_event("shutdown")
 async def shutdown_event():
-    async with aiohttp.ClientSession() as session:
-        await session.post(
-            RUNNER_DISHOOK_URL,
-            data={"content": "‼️ Heyall <#1032297422975680512> has been shut down 🛑"},
-        )
+    if RUNNER_DISHOOK_URL is not None:
+        async with aiohttp.ClientSession() as session:
+            await session.post(
+                RUNNER_DISHOOK_URL,
+                data={"content": "‼️ Heyall <#1032297422975680512> has been shut down 🛑"},
+            )
 
 
 async def cache_get_torrent_datadumps(cache_id: str):
