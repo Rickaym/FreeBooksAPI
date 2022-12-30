@@ -4,7 +4,7 @@ COPY requirements.txt /app/
 
 WORKDIR /app
 
-RUN pip install --force-reinstall --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 COPY /freebooksapi .
 
