@@ -14,6 +14,8 @@ jobs:
 
       - name: Run Container
         run: docker compose up -d --build
+        env:
+          RUNNER_DISHOOK_URL: ${{ secrets.RUNNER_DISHOOK_URL }}
 
       - name: Cleanup Unused Images
         run: docker image prune -f

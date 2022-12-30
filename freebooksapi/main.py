@@ -1,6 +1,8 @@
 import logging
+import aiohttp
 
 from fastapi import FastAPI
+from os import getenv
 from fastapi.responses import RedirectResponse
 from logging import getLogger
 from typing import Dict, List, Optional
@@ -19,6 +21,7 @@ FREEBOOKSAPI = FastAPI(
     title="FreeBooksAPI",
     description="A speedy (unofficial) API service for planet-ebooks, gen.lib.rus.ec/libgen.rs, libgen.lc/libgen.li, providing access to retrieving free book downloading URLs, publication metadata, and many more!",
 )
+RUNNER_DISHOOK_URL: str = getenv("RUNNER_DISHOOK_URL")  # type: ignore
 
 with open("./index.html", "r") as f:
     INDEX_HTML = f.read()
@@ -59,7 +62,9 @@ async def cache_get_torrent_datadumps(cache_id: str):
 @FREEBOOKSAPI.get("/", response_class=RedirectResponse, include_in_schema=False)
 @unversion()
 def index():
-    return RedirectResponse("https://github.com/Rickaym/FreeBooksAPI/blob/master/README.md")
+    return RedirectResponse(
+        "https://github.com/Rickaym/FreeBooksAPI/blob/master/README.md"
+    )
 
 
 @FREEBOOKSAPI.get("/{library}/datadumps", response_model=MetaDatadumpModel)
@@ -184,8 +189,28 @@ async def get_book_or_articles(
         "results": (item.__dict__ for item in result.get_publications(offset, limit)),
     }
 
-FREEBOOKSAPI = VersionedFastAPI(FREEBOOKSAPI,
-    version_format='{major}',
-    prefix_format='/v{major}',
-    enable_latest=True
+
+@FREEBOOKSAPI.on_event("startup")
+async def startup_event():
+    async with aiohttp.ClientSession() as session:
+        await session.post(
+            RUNNER_DISHOOK_URL,
+            data={"content": "🚀  Heyall <#1032297422975680512> has been redeployed 💦"},
+        )
+
+
+@FREEBOOKSAPI.on_event("shutdown")
+async def shutdown_event():
+    async with aiohttp.ClientSession() as session:
+        await session.post(
+            RUNNER_DISHOOK_URL,
+            data={"content": "‼️  Heyall <#1032297422975680512> has been shut down 🛑"},
+        )
+
+
+FREEBOOKSAPI = VersionedFastAPI(
+    FREEBOOKSAPI,
+    version_format="{major}",
+    prefix_format="/v{major}",
+    enable_latest=True,
 )

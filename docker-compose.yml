@@ -7,3 +7,5 @@ services:
       - "80:80"
     volumes:
       - /root/..freebooksapi-data
+    environment:
+      - RUNNER_DISHOOK_URL
