@@ -50,6 +50,24 @@ LIBRARY_AGENTS: Dict[str, Agent] = {
 PERMITTED_FIELDS = "id,authors,isbn,edition,series,title,publisher,year,pages,lang,size,extension,mirrors"
 
 
+@FREEBOOKSAPI.on_event("startup")
+async def startup_event():
+    async with aiohttp.ClientSession() as session:
+        await session.post(
+            RUNNER_DISHOOK_URL,
+            data={"content": "🚀 Heyall <#1032297422975680512> has been redeployed 💦"},
+        )
+
+
+@FREEBOOKSAPI.on_event("shutdown")
+async def shutdown_event():
+    async with aiohttp.ClientSession() as session:
+        await session.post(
+            RUNNER_DISHOOK_URL,
+            data={"content": "‼️ Heyall <#1032297422975680512> has been shut down 🛑"},
+        )
+
+
 async def cache_get_torrent_datadumps(cache_id: str):
     log.info(f'Retrieving cache information under "{cache_id}"')
     for name, lib in LIBRARY_AGENTS.items():
@@ -188,24 +206,6 @@ async def get_book_or_articles(
         "page": page,
         "results": (item.__dict__ for item in result.get_publications(offset, limit)),
     }
-
-
-@FREEBOOKSAPI.on_event("startup")
-async def startup_event():
-    async with aiohttp.ClientSession() as session:
-        await session.post(
-            RUNNER_DISHOOK_URL,
-            data={"content": "🚀  Heyall <#1032297422975680512> has been redeployed 💦"},
-        )
-
-
-@FREEBOOKSAPI.on_event("shutdown")
-async def shutdown_event():
-    async with aiohttp.ClientSession() as session:
-        await session.post(
-            RUNNER_DISHOOK_URL,
-            data={"content": "‼️  Heyall <#1032297422975680512> has been shut down 🛑"},
-        )
 
 
 FREEBOOKSAPI = VersionedFastAPI(
