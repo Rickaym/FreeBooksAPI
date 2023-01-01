@@ -46,7 +46,7 @@ class SearchUrlArgs:
 class SearchResult:
     publications: List[Publication]
     total_found: int
-    showing_range: Optional[Tuple[int, int]]
+    showing_range: Tuple[int, int]
 
     def get_publications(self, offset: int, limit: int):
         pubs = self.publications[offset:]
