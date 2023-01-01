@@ -1,4 +1,6 @@
-# 🏛️ FreeBooksAPI
+<img width="400px" src="https://raw.githubusercontent.com/Rickaym/FreeBooksAPI/bd035158db4bc9363e1b00d0bd3221183cc94ad7/assets/logo.png">
+
+<!-- header -->
 
 <a href="https://freebooksapi.pyaesonemyo.me/latest/redoc"><img alt="redoc-docs" src="https://img.shields.io/badge/Redoc-docs-purple?style=for-the-badge&logo=Read the Docs&logoColor=violet"></a>
 <a href="https://discord.gg/UmnzdPgn6g/"><img src="https://img.shields.io/discord/793047973751554088.svg?label=API Support&color=blue&style=for-the-badge&logo=discord" alt="Discord"></a>
