@@ -36,6 +36,8 @@ def get_description():
 FREEBOOKSAPI = FastAPI(
     title="FreeBooksAPI",
     description=get_description(),
+    docs_url=None,
+    redoc_url="/docs",
 
 )
 RUNNER_DISHOOK_URL: str = getenv("RUNNER_DISHOOK_URL")  # type: ignore
@@ -110,9 +112,7 @@ async def cache_get_torrent_datadumps(cache_id: str):
 @FREEBOOKSAPI.get("/", response_class=RedirectResponse, include_in_schema=False)
 @unversion()
 def index():
-    return RedirectResponse(
-        "https://github.com/Rickaym/FreeBooksAPI/blob/master/README.md"
-    )
+    return RedirectResponse("./latest/docs")
 
 
 @FREEBOOKSAPI.get("/{library}/datadumps", response_model=MetaDatadumpModel)
