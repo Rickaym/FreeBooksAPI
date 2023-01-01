@@ -56,7 +56,9 @@ async def startup_event():
         async with aiohttp.ClientSession() as session:
             await session.post(
                 RUNNER_DISHOOK_URL,
-                data={"content": "🚀 Heyall <#1032297422975680512> has been redeployed 💦"},
+                data={
+                    "content": "🚀 Heyall <#1032297422975680512> has been redeployed 💦"
+                },
             )
 
 
@@ -66,7 +68,9 @@ async def shutdown_event():
         async with aiohttp.ClientSession() as session:
             await session.post(
                 RUNNER_DISHOOK_URL,
-                data={"content": "‼️ Heyall <#1032297422975680512> has been shut down 🛑"},
+                data={
+                    "content": "‼️ Heyall <#1032297422975680512> has been shut down 🛑"
+                },
             )
 
 
@@ -75,8 +79,15 @@ async def cache_get_torrent_datadumps(cache_id: str):
     for name, lib in LIBRARY_AGENTS.items():
         canonical_name = cache_id.format(library=name)
         dbdumps = await lib.get_datadumps()
-        log.info(f'Filled cache  "{canonical_name}" with "{len(dbdumps or [])}" items.')
-        set_cache(canonical_name, dbdumps)
+
+        dumps = {
+            "datadump_url": LIBRARY_AGENTS[name].datadumps_url,
+            "total_results": len(dbdumps),
+            "results": [item.__dict__ for item in dbdumps],
+        }
+
+        log.info(f'Filled cache  "{canonical_name}" with "{len(dumps or [])}" items.')
+        set_cache(canonical_name, dumps)
 
 
 @FREEBOOKSAPI.get("/", response_class=RedirectResponse, include_in_schema=False)
@@ -92,21 +103,14 @@ def index():
 @cache_cascade(
     cache_id="{library}/datadumps",
     cache_every_h=24,
-    release_after_h=48,
+    stop_cache_after_h=48,
     caching_task=cache_get_torrent_datadumps,
-    pass_result=True,
 )
 def get_torrent_datadumps(library: LibraryAll):
     """
     Retrieve all datadump URLs.
     """
-    # `get_cached` attribute is set by the decorator
-    dbdumps = get_torrent_datadumps.get_cached(library)
-    return {
-        "datadump_url": LIBRARY_AGENTS[library.value].datadumps_url,
-        "total_results": len(dbdumps),
-        "results": (item.__dict__ for item in dbdumps),
-    }
+    # the response needed comes directly from cache
 
 
 async def cache_get_topics(cache_id: str):
@@ -123,16 +127,15 @@ async def cache_get_topics(cache_id: str):
 @cache_cascade(
     cache_id="{library}/topics",
     cache_every_h=24,
-    release_after_h=48,
+    stop_cache_after_h=48,
     caching_task=cache_get_topics,
-    pass_result=False,
 )
 async def get_topics(library: LibraryLibgen):
     """
     Retrieve available topics for the library. The topic IDs fetched here can
     be used in the `/search` endpoint via `topic_id`.
     """
-    # the data response needed for this endpoint is fetched from cache
+    # the response needed comes directly from cache
 
 
 @FREEBOOKSAPI.get(
