@@ -1,8 +1,8 @@
-# Contribution
-
-Great to see you here cadet, ATTENTION!
+# 🏗️ Contribution
 
 To understand the server infastructure and scrapers you will have to understand the intuitions behind the components that ensures that FreeBooksAPI works like a well oiled machine.
+
+You can skip this part if you're here just to view the API endpoint documentation.
 
 ## Index
 

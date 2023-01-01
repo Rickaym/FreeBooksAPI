@@ -1,9 +1,17 @@
-# FreeBooksAPI 🏛️
+# 🏛️ FreeBooksAPI
 
 <a href="https://freebooksapi.pyaesonemyo.me/latest/docs"><img alt="swagger-ui-docs" src="https://img.shields.io/badge/swagger-docs-brightgreen?style=for-the-badge&logo=swagger"></a>
 <a href="https://freebooksapi.pyaesonemyo.me/latest/redoc"><img alt="redoc-docs" src="https://img.shields.io/badge/Redoc-docs-purple?style=for-the-badge&logo=Read the Docs&logoColor=violet"></a>
+<a href="https://discord.gg/UmnzdPgn6g/"><img src="https://img.shields.io/discord/793047973751554088.svg?label=API Support&color=blue&style=for-the-badge&logo=discord" alt="Discord"></a>
 
 A comprehensive (unofficial) API service for [planet-ebooks](https://www.planetebook.com/), [gen.lib.rus.ec/libgen.rs](http://gen.lib.rus.ec/), [libgen.lc/libgen.li](http://libgen.lc/), providing API endpoints to retrieve download URLs, mirrors, publication metadata, and the likes.
+
+The API implements the following features:
+
+- Searching for publications and books by name, author name, topic, and so on.
+- Retrieve download URLs for books and publications
+- Retrieve datadumps sites for libraries
+- Retrieve library aliases list
 
 
 ## Tech Stack
@@ -12,12 +20,6 @@ A comprehensive (unofficial) API service for [planet-ebooks](https://www.planete
 <img alt="load-balanced-with-nginx" src="https://img.shields.io/badge/scale-nginx-009137?style=for-the-badge&logo=nginx&logoColor=green">
 <img alt="built-with-docker" src="https://img.shields.io/badge/build-docker-0F6AAA?style=for-the-badge&logo=docker">
 <img alt="based-on-fastapi" src="https://img.shields.io/badge/ASGI-fastapi-F7CA3E?style=for-the-badge&logo=fastapi&logoColor=F7CA3E">
-
-## Features
-
-- Searching books by name, author name, topic and etc...
-- Retrieve free download URLs for books and publications
-- Retrieve torrent datadumps for free books
 
 ## Getting Started
 
@@ -30,7 +32,6 @@ We'll need to keep in mind the following base URLs to understand the whole API.
 
 For specific API Reference, look at [Swagger Docs](https://freebooksapi.pyaesonemyo.me/latest/docs) or [ReDoc](https://freebooksapi.pyaesonemyo.me/latest/redoc) (same documentation, different UIs).
 
-
 ### Searching Example
 
 There are a few libraries we can pick from when querying for publications. We'll use [libgen](http://gen.lib.rus.ec/) in this example with the url args <sup>*(more about the existing url args in the docs)*</sup> "dostoyevsky" as our query string and a limit of 1 publication record.
@@ -39,16 +40,6 @@ Using the versioned base url with the library selected, we get the following cur
 ```s
 curl -X GET \
   'https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1'
-```
-
-a Python equivalent example using requests would simply be:
-
-```py
-import requests
-
-url = "https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1"
-
-response = requests.request("GET", url)
 ```
 
 #### Different Libraries
@@ -62,18 +53,27 @@ curl -X GET \
   'https://freebooksapi.pyaesonemyo.me/latest/planetebooks/search?q=dostoyevsky&limit=1'
 ```
 
+A Python equivalent example using requests would simply be:
+
+```py
+import requests
+
+url = "https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1"
+
+response = requests.request("GET", url)
+```
+
 ```diff
 + Note: You don't need any authorization to use this API.
 ```
- Happy Coding!
 
 ## Support the Project
 
-Kindly consider supporting this project through starring the repository or buying me a coffee to cover the server costs! :D And thanks a lot for using our API, it's always extremely gratifying seeing your work help other people.
+Kindly consider supporting this project through starring the repository or buying me a coffee to cover the server costs! Thanks a lot for using our API, it's always extremely gratifying seeing your work help other people.
 
-<a href="https://www.buymeacoffee.com/rickaym" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/rickaym" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 45px" ></a>
 
-## Contributions
+### Contributions
 
 For contributions: read [contributions.md](./contributions.md).
 
