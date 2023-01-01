@@ -178,7 +178,7 @@ async def get_book_or_articles(
         )
 
     agent = LIBRARY_AGENTS[library.value]
-    result = await agent.query(
+    result = await agent.search(
         q,
         SearchUrlArgs(
             lang=lang,
@@ -202,9 +202,7 @@ async def get_book_or_articles(
     return {
         "search_url": agent.search_url,
         "total_results": result.total_found if result.total_found is not None else None,
-        "page_result_range": f"{result.showing_range[0]}-{result.showing_range[1]}/{result.total_found}"
-        if result.showing_range is not None
-        else None,
+        "page_result_range": f"{result.showing_range[0]}-{result.showing_range[1]}/{result.total_found}",
         "page": page,
         "results": (item.__dict__ for item in result.get_publications(offset, limit)),
     }

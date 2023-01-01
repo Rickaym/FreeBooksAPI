@@ -35,7 +35,7 @@ class Agent(ABC):
         self.topics_strain = topics_strain
         self.datadumps_strain = datadumps_strain
 
-    async def query(self, search_term: Optional[str], urlargs: SearchUrlArgs):
+    async def search(self, search_term: Optional[str], urlargs: SearchUrlArgs):
         """
         Queries the search term along with the url args
         on the corresponding website.
@@ -49,6 +49,7 @@ class Agent(ABC):
             raise ValueError("Your search term must be at least 3 characters long.")
 
         page_url = self.get_search_url(search_term, urlargs)
+        print(f"GETing '{page_url}' for the ")
         page = await get_page(page_url, self.search_strain)
         return (
             await self.parse_result(page)
