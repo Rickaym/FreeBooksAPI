@@ -2,7 +2,7 @@ import logging
 import aiohttp
 
 from fastapi import FastAPI
-from os import getenv
+from os import getenv, path as file_path
 from fastapi.responses import RedirectResponse
 from logging import getLogger
 from typing import Dict, List, Optional
@@ -17,9 +17,26 @@ from scrapers.genlibrusec import GenLibRusEc
 from scrapers.libgenlc import LibGenLc
 from scrapers.objects import SearchUrlArgs, SearchMode
 
+def get_description():
+    readme = "README.md" if file_path.exists("README.md") else  "../README.md"
+
+    with open(readme, 'r', encoding="utf-8") as file:
+        content = file.read()
+
+    content = content.replace("# FreeBooksAPI 🏛️", "# 🏛️ Introduction")
+
+    contributions = "contributions.md" if file_path.exists("contributions.md") else "../contributions.md"
+    with open(contributions, 'r', encoding="utf-8") as file:
+        content += file.read()
+
+    content = content.replace("[contributions.md](./contributions.md)", "[contribution](./#section/Contributions)")
+
+    return content
+
 FREEBOOKSAPI = FastAPI(
     title="FreeBooksAPI",
-    description="A comprehensive (unofficial) API service for planet-ebooks, gen.lib.rus.ec/libgen.rs, libgen.lc/libgen.li, providing access to retrieving free book downloading URLs, publication metadata, and many more!",
+    description=get_description(),
+
 )
 RUNNER_DISHOOK_URL: str = getenv("RUNNER_DISHOOK_URL")  # type: ignore
 
