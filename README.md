@@ -1,6 +1,5 @@
 # 🏛️ FreeBooksAPI
 
-<a href="https://freebooksapi.pyaesonemyo.me/latest/docs"><img alt="swagger-ui-docs" src="https://img.shields.io/badge/swagger-docs-brightgreen?style=for-the-badge&logo=swagger"></a>
 <a href="https://freebooksapi.pyaesonemyo.me/latest/redoc"><img alt="redoc-docs" src="https://img.shields.io/badge/Redoc-docs-purple?style=for-the-badge&logo=Read the Docs&logoColor=violet"></a>
 <a href="https://discord.gg/UmnzdPgn6g/"><img src="https://img.shields.io/discord/793047973751554088.svg?label=API Support&color=blue&style=for-the-badge&logo=discord" alt="Discord"></a>
 
@@ -30,7 +29,7 @@ We'll need to keep in mind the following base URLs to understand the whole API.
 | Versioned base url      | https://freebooksapi.pyaesonemyo.me/v{major} (or) /latest/ |
 | Library selector | https://freebooksapi.pyaesonemyo.me/v{major}/{library} |
 
-For specific API Reference, look at [Swagger Docs](https://freebooksapi.pyaesonemyo.me/latest/docs) or [ReDoc](https://freebooksapi.pyaesonemyo.me/latest/redoc) (same documentation, different UIs).
+For specific API Reference, look at [ReDoc](https://freebooksapi.pyaesonemyo.me/latest/redoc).
 
 ### Searching Example
 
