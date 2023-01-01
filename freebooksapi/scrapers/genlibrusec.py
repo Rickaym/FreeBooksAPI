@@ -72,8 +72,9 @@ class GenLibRusEc(Agent):
         meta_inf = RE_SEARCH_INFO.search(meta_tags[0].text)
 
         if not meta_inf:
+            # lack of metadata means no results were found
             total_files = 0
-            show_range = None
+            show_range = (0, 0)
         else:
             total_files = int(meta_inf.groups()[0])
             show_range = (
