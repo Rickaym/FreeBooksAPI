@@ -23,7 +23,7 @@ MEM_CACHE_DICT = {}
 
 def repeat_every(
     func: Union[NoArgsNoReturnAsyncFuncT, NoArgsNoReturnFuncT],
-    on_release: NoArgsNoReturnFuncT,
+    on_end: NoArgsNoReturnFuncT,
     *,
     seconds: float,
     wait_first: bool = False,
@@ -78,7 +78,7 @@ def repeat_every(
                 if raise_exceptions:
                     raise exc
             await asyncio.sleep(seconds)
-        on_release()
+        on_end()
 
     ensure_future(loop())
 
@@ -95,59 +95,56 @@ def get_cache(cache_id: str) -> Any:
 def cache_cascade(
     cache_id: str,
     cache_every_h: int,
-    release_after_h: int,
+    stop_cache_after_h: int,
     caching_task: Any,
-    pass_result: bool,
+    pass_result: bool=False,
     precache: bool=True
 ):
     """
-    Triggers a cascade of tasks when the end-point is hit with an
-    call, and the tasks is looped every given hour and it is released after a
-    maximum amount of hours of its last known call.
+    If the end-point is requested, an iterative caching function is invoked
+    in a loop at specific intervals. The cache loop will stop if the endpoint
+    is not hit again after the maximum amount of time to keep re-caching (or)
+    the release time.
     """
-    released = True
+    cascade_stopped = True
 
-    def cascade():
-        nonlocal released
-        released = False
+    def cache_cascade():
+        nonlocal cascade_stopped
+        cascade_stopped = False
 
-        def on_release():
-            nonlocal released
-            released = True
+        def on_end():
+            nonlocal cascade_stopped
+            cascade_stopped = True
 
         repeat_every(
             func=functools.partial(caching_task, cache_id),
             # set released to True after max iter is reached
-            on_release=on_release,
+            on_end=on_end,
             seconds=cache_every_h * 60 * 60,
             raise_exceptions=True,
             logger=log,
-            max_repetitions=release_after_h // cache_every_h,
+            max_repetitions=stop_cache_after_h // cache_every_h,
         )
 
     def predicate(func):
-        # The wrapped function completely discards the implemetation of the
-        # function that is wrapped.
         is_coroutine = asyncio.iscoroutinefunction(func)
-        # cache getter function
         get_cached = lambda library: get_cache(cache_id.format(library=library.value))
+
         @functools.wraps(func)
         async def wrapped(library: LibraryAll):
-            nonlocal released
-            # if the cache function is hit again after being released
-            # this will cascade the task again
-            if released:
-                cascade()
+            nonlocal cascade_stopped
+            # cascade starts again when the endpoint is re-hit after stopped
+            if cascade_stopped:
+                cache_cascade()
 
             if pass_result:
                 # here the wrapped function assumes control
                 return await func(library) if is_coroutine else func(library)
+
             return get_cached(library)
 
         if pass_result:
-            # we need to pass the resulting cache getter to the wrapped
-            # through the `get_cached` attribute so that the user may
-            # call it internall
+            # expose cache getter to user's function
             wrapped.get_cached = get_cached
         return wrapped
 
@@ -158,6 +155,8 @@ def cache_cascade(
         except RuntimeError:
             log.error("Missing asyncio runtime loop to initiate precaching.")
         else:
-            pass
-            # create_task(caching_task(cache_id))
+            create_task(caching_task(cache_id))
+    else:
+        raise Exception("It's unsafe to turn off precache at the moment.")
+
     return predicate
