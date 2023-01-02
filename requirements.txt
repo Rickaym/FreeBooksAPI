@@ -3,4 +3,3 @@ uvicorn==0.18.3
 aiohttp==3.8.3
 lxml
 beautifulsoup4
-git+https://github.com/Rickaym/fastapi-versioning.git
