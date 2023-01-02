@@ -2,10 +2,6 @@ FROM python:3.9.16-bullseye
 
 COPY requirements.txt /app/
 
-COPY README.md /app/
-
-COPY contributions.md /app/
-
 WORKDIR /app
 
 RUN pip install --force-reinstall --no-cache-dir --upgrade -r /app/requirements.txt
