@@ -2,14 +2,15 @@ import logging
 import aiohttp
 
 from fastapi import FastAPI
-from os import getenv, path as file_path
+from fastapi.openapi.utils import get_openapi
+from os import getenv
 from fastapi.responses import RedirectResponse
 from logging import getLogger
 from typing import Dict, List, Optional
 from misc import cache_cascade, set_cache
 from exceptions import ErrorJsonResponse
 from models import MetaPublicationModel, LibraryAll, LibraryLibgen, MetaDatadumpModel
-from fastapi_versioning import VersionedFastAPI, version, unversion
+from fastapi_versioning import VersionedFastAPI
 
 from scrapers.agent import Agent
 from scrapers.planetebooks import PlanetEBooks
@@ -17,33 +18,15 @@ from scrapers.genlibrusec import GenLibRusEc
 from scrapers.libgenlc import LibGenLc
 from scrapers.objects import SearchUrlArgs, SearchMode
 
-def get_description():
-    readme = "README.md" if file_path.exists("README.md") else  "../README.md"
+FREEBOOKSAPI = VersionedFastAPI(docs_url=None, redoc_url=None)
 
-    with open(readme, 'r', encoding="utf-8") as file:
-        content = file.read()
 
-    content = content.replace("# FreeBooksAPI 🏛️", "# 🏛️ Introduction")
+def custom_mount(parent: FastAPI, version_key: str):
+    return FastAPI(version=version_key, docs_url=None, redoc_url="/api-reference")
 
-    contributions = "contributions.md" if file_path.exists("contributions.md") else "../contributions.md"
-    with open(contributions, 'r', encoding="utf-8") as file:
-        content += file.read()
 
-    content = content.replace("[contributions.md](./contributions.md)", "[contribution](./#section/Contributions)")
-
-    return content
-
-FREEBOOKSAPI = FastAPI(
-    title="FreeBooksAPI",
-    description=get_description(),
-    docs_url=None,
-    redoc_url="/docs",
-
-)
+FREEBOOKSAPI.new_versioned_mount = custom_mount
 RUNNER_DISHOOK_URL: str = getenv("RUNNER_DISHOOK_URL")  # type: ignore
-
-with open("./index.html", "r") as f:
-    INDEX_HTML = f.read()
 
 ##### Logging
 _loggers = ["main", "libgen", "zlibrary"]
@@ -93,6 +76,14 @@ async def shutdown_event():
             )
 
 
+@FREEBOOKSAPI.get("/docs", response_class=RedirectResponse, include_in_schema=False)
+def docs():
+    return RedirectResponse("./latest/api-reference")
+
+
+# /v1/ Routes Below
+
+
 async def cache_get_torrent_datadumps(cache_id: str):
     log.info(f'Retrieving cache information under "{cache_id}"')
     for name, lib in LIBRARY_AGENTS.items():
@@ -109,14 +100,9 @@ async def cache_get_torrent_datadumps(cache_id: str):
         set_cache(canonical_name, dumps)
 
 
-@FREEBOOKSAPI.get("/", response_class=RedirectResponse, include_in_schema=False)
-@unversion()
-def index():
-    return RedirectResponse("./latest/docs")
-
-
-@FREEBOOKSAPI.get("/{library}/datadumps", response_model=MetaDatadumpModel)
-@version(1)
+@FREEBOOKSAPI.get(
+    "/{library}/datadumps", route_version=1, response_model=MetaDatadumpModel
+)
 @cache_cascade(
     cache_id="{library}/datadumps",
     cache_every_h=24,
@@ -139,8 +125,7 @@ async def cache_get_topics(cache_id: str):
         set_cache(canonical_name, topics)
 
 
-@FREEBOOKSAPI.get("/{library}/topics", response_model=Dict[str, str])
-@version(1)
+@FREEBOOKSAPI.get("/{library}/topics", route_version=1, response_model=Dict[str, str])
 @cache_cascade(
     cache_id="{library}/topics",
     cache_every_h=24,
@@ -157,10 +142,10 @@ async def get_topics(library: LibraryLibgen):
 
 @FREEBOOKSAPI.get(
     "/{library}/aliases",
+    route_version=1,
     response_description="Library URL Aliases.",
     response_model=List[str],
 )
-@version(1)
 def get_torrent_aliases(library: LibraryAll):
     """
     Retrieve existing aliases for the given libraries.
@@ -170,10 +155,10 @@ def get_torrent_aliases(library: LibraryAll):
 
 @FREEBOOKSAPI.get(
     "/{library}/search",
+    route_version=1,
     response_description="A list of publications for the given query.",
     response_model=MetaPublicationModel,
 )
-@version(1)
 async def get_book_or_articles(
     library: LibraryAll,
     q: Optional[str] = None,
@@ -228,9 +213,40 @@ async def get_book_or_articles(
     }
 
 
-FREEBOOKSAPI = VersionedFastAPI(
-    FREEBOOKSAPI,
-    version_format="{major}",
-    prefix_format="/v{major}",
-    enable_latest=True,
-)
+FREEBOOKSAPI.enable_latest()
+
+
+def custom_openapi(router: FastAPI):
+    def openapi():
+        # cache the generated schema
+        if router.openapi_schema:
+            return router.openapi_schema
+
+        # custom settings
+        openapi_schema = get_openapi(
+            title="API Reference",
+            version=router.version,
+            openapi_version=router.openapi_version,
+            description=router.description,
+            terms_of_service=router.terms_of_service,
+            contact=router.contact,
+            license_info=router.license_info,
+            routes=router.routes,
+            tags=router.openapi_tags,
+            servers=router.servers,
+        )
+        # setting new logo to docs
+        openapi_schema["info"]["x-logo"] = {
+            "url": "https://raw.githubusercontent.com/Rickaym/FreeBooksAPI/master/assets/logo-large.png"
+        }
+        router.openapi_schema = openapi_schema
+
+        return router.openapi_schema
+
+    return openapi
+
+
+for router in FREEBOOKSAPI.route_version_mounts.values():
+    router.openapi = custom_openapi(router)
+
+print(FREEBOOKSAPI.route_version_mounts)
