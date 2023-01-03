@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.utils import get_openapi
 from os import getenv
-from fastapi.responses import RedirectResponse, HTMLResponse, FileResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from logging import getLogger
 from typing import Dict, List, Optional
 from misc import cache_cascade, set_cache
@@ -19,12 +19,14 @@ from scrapers.genlibrusec import GenLibRusEc
 from scrapers.libgenlc import LibGenLc
 from scrapers.objects import SearchUrlArgs, SearchMode
 
-FREEBOOKSAPI = VersionedFastAPI(docs_url=None, redoc_url=None)
-FREEBOOKSAPI.mount("/home", StaticFiles(directory="home"), name="home")
+FREEBOOKSAPI = VersionedFastAPI(
+    docs_url=None, redoc_url=None, prefix_format="/api/v{major}_{minor}"
+)
+FREEBOOKSAPI.mount("/home", StaticFiles(directory="home", html=True), name="home")
 
 
 def custom_mount(parent: FastAPI, version_key: str):
-    return FastAPI(version=version_key, docs_url=None, redoc_url="/api-reference")
+    return FastAPI(version=version_key, docs_url=None, redoc_url="/docs")
 
 
 FREEBOOKSAPI.new_versioned_mount = custom_mount
@@ -78,19 +80,9 @@ async def shutdown_event():
             )
 
 
-@FREEBOOKSAPI.get("/", response_class=RedirectResponse, include_in_schema=False)
+@FREEBOOKSAPI.get("/", include_in_schema=False)
 def index():
     return RedirectResponse("/home")
-
-
-@FREEBOOKSAPI.get("/home", response_class=FileResponse, include_in_schema=False)
-def home_resp():
-    return FileResponse("./home/index.html")
-
-
-@FREEBOOKSAPI.get("/docs", response_class=RedirectResponse, include_in_schema=False)
-def docs():
-    return RedirectResponse("./latest/api-reference")
 
 
 # /v1/ Routes Below
@@ -261,4 +253,4 @@ def custom_openapi(router: FastAPI):
 for router in FREEBOOKSAPI.route_version_mounts.values():
     router.openapi = custom_openapi(router)
 
-print(FREEBOOKSAPI.route_version_mounts)
+FREEBOOKSAPI.enable_latest()
