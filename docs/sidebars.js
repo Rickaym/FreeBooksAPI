@@ -30,7 +30,7 @@ const sidebars = {
         type: 'generated-index',
         title: 'Contribution',
         description: "Understand the server infastructure and scrapers to understand the intuitions behind the components behind FreeBooksAPI. It is not necessary to read this if you're just looking to use the API.",
-        slug: '/category/docusaurus-guides',
+        slug: '/contribution',
         keywords: ['contribution'],
         image: '/img/docusaurus.png',
       },
