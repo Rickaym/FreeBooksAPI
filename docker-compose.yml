@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   main:
-    build: .
+    build: deploy
     container_name: freebooksapi
     ports:
       - "80:80"
