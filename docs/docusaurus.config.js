@@ -57,9 +57,15 @@ const config = {
         items: [
           {
             type: 'doc',
-            docId: 'intro',
+            docId: 'getting-started',
             position: 'left',
             label: 'Documentation',
+          },
+          {
+            to: 'community',
+            activeBasePath: 'community',
+            position: 'left',
+            label: 'Community',
           },
           {
             href: 'https://github.com/Rickaym/FreeBooksAPI',
@@ -76,7 +82,7 @@ const config = {
             items: [
               {
                 label: 'Tutorial',
-                to: '/docs/intro',
+                to: '/docs/getting-started',
               },
               {
                 label: 'API Reference',
