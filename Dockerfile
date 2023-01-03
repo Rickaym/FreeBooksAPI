@@ -1,16 +1,16 @@
 # Build step
 
 FROM node:16 AS build
+COPY /docs /docs
 WORKDIR /docs
 RUN npm install
-COPY . .
 RUN npm run build
 
 # Deployment step
 
 FROM python:3.9.16-bullseye AS deploy
 COPY requirements.txt /app/
-ADD /docs/build /home/
+COPY --from=build /docs/build /app/home
 WORKDIR /app
 RUN pip cache purge
 RUN pip install --force-reinstall --no-cache-dir --upgrade -r /app/requirements.txt
