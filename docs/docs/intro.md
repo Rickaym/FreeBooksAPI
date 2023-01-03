@@ -2,46 +2,52 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Getting Started
 
-Let's discover **Docusaurus in less than 5 minutes**.
+We'll need to keep in mind the following base URLs to understand the whole API.
 
-## Getting Started
+| Type      | Url |
+| ------------- |:-------------:|
+| Base Url      | https://freebooksapi.pyaesonemyo.me/ |
+| Versioned base url      | https://freebooksapi.pyaesonemyo.me/v{major} (or) /latest/ |
+| Library selector | https://freebooksapi.pyaesonemyo.me/v{major}/{library} |
 
-Get started by **creating a new site**.
+For specific API Reference, look at [redoc](https://freebooksapi.pyaesonemyo.me/latest/api-reference).
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+### Searching Example
 
-### What you'll need
+There are a few libraries we can pick from when querying for publications. We'll use [libgen](http://gen.lib.rus.ec/) in this example with the url args <sup>*(more about the existing url args in the docs)*</sup> "dostoyevsky" as our query string and a limit of 1 publication record.
 
-- [Node.js](https://nodejs.org/en/download/) version 16.14 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
-
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
+Using the versioned base url with the library selected, we get the following curl command:
+```s
+curl -X GET \
+  'https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1'
 ```
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+:::tip Note
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+You don't need any authorization to use this API. Please use judiciously lol.
 
-## Start your site
+:::
 
-Run the development server:
+#### Different Libraries
 
-```bash
-cd my-website
-npm run start
+Switching libraries is simply done through substituting the `{library}` url arg from our base url with an available library ID.
+
+The exact same GET request for the above example using planetebooks would be:
+
+```s
+curl -X GET \
+  'https://freebooksapi.pyaesonemyo.me/latest/planetebooks/search?q=dostoyevsky&limit=1'
 ```
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+A Python equivalent example using requests would simply be:
 
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
+```py
+import requests
 
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+url = "https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1"
+
+response = requests.request("GET", url)
+```
+
