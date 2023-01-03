@@ -1,4 +1,6 @@
 ---
+title: Getting Started
+description: Get familiar with the API.
 sidebar_position: 1
 ---
 
