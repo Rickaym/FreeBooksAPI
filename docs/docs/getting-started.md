@@ -14,7 +14,7 @@ We'll need to keep in mind the following base URLs to understand the whole API.
 | Versioned base url      | https://freebooksapi.pyaesonemyo.me/v{major} (or) /latest/ |
 | Library selector | https://freebooksapi.pyaesonemyo.me/v{major}/{library} |
 
-For specific API Reference, look at [redoc](https://freebooksapi.pyaesonemyo.me/latest/api-reference).
+For specific API Reference, look at [redoc](https://freebooksapi.pyaesonemyo.me/latest/docs).
 
 ### Searching Example
 

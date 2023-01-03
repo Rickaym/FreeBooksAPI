@@ -2,7 +2,7 @@
 
 <!-- header -->
 
-<a href="https://freebooksapi.pyaesonemyo.me/latest/api-reference"><img alt="redoc-docs" src="https://img.shields.io/badge/Redoc-docs-purple?style=for-the-badge&logo=Read the Docs&logoColor=violet"></a>
+<a href="https://freebooksapi.pyaesonemyo.me/latest/docs"><img alt="redoc-docs" src="https://img.shields.io/badge/Redoc-docs-purple?style=for-the-badge&logo=Read the Docs&logoColor=violet"></a>
 <a href="https://discord.gg/UmnzdPgn6g/"><img src="https://img.shields.io/discord/793047973751554088.svg?label=API Support&color=blue&style=for-the-badge&logo=discord" alt="Discord"></a>
 
 A comprehensive (unofficial) API service for [planet-ebooks](https://www.planetebook.com/), [gen.lib.rus.ec/libgen.rs](http://gen.lib.rus.ec/), [libgen.lc/libgen.li](http://libgen.lc/), providing API endpoints to retrieve download URLs, mirrors, publication metadata, and the likes.
@@ -31,7 +31,7 @@ We'll need to keep in mind the following base URLs to understand the whole API.
 | Versioned base url      | https://freebooksapi.pyaesonemyo.me/v{major} (or) /latest/ |
 | Library selector | https://freebooksapi.pyaesonemyo.me/v{major}/{library} |
 
-For specific API Reference, look at [ReDoc](https://freebooksapi.pyaesonemyo.me/latest/api-reference).
+For specific API Reference, look at [ReDoc](https://freebooksapi.pyaesonemyo.me/latest/docs).
 
 ### Searching Example
 
