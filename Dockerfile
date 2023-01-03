@@ -1,6 +1,22 @@
-FROM python:3.9.16-bullseye
+FROM node:16 AS build
+
+WORKDIR /docs
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+# Deployment step
+
+FROM python:3.9.16-bullseye AS deploy
 
 COPY requirements.txt /app/
+
+ADD /docs/build /home/
 
 WORKDIR /app
 
