@@ -44,7 +44,7 @@ const sidebars = {
     {
       type: "link",
       label: "API Reference",
-      href: "https://freebooksapi.pyaesonemyo.me/latest/docs/",
+      href: "https://freebooksapi.pyaesonemyo.me/api/latest/docs/",
     },
   ],
 };
