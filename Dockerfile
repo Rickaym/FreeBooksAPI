@@ -1,3 +1,4 @@
+# Note: buildkit must be turned off
 # Build step
 
 FROM node:16 AS build
