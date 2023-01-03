@@ -22,7 +22,7 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="/docs/intro">
+            to="/docs">
             Get Started
           </Link>
         </div>
@@ -32,10 +32,9 @@ function HomepageHeader() {
 }
 
 export default function Home(): JSX.Element {
-  const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`${siteConfig.title}`}
+      title={`Homepage`}
       description="A comprehensive (unofficial) API service for planet-ebooks, libgen/gen.lib.rus.ec, and libgen.lc | Get Started · Documentation <head />">
       <HomepageHeader />
       <main>
