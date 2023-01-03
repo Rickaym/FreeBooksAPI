@@ -19,9 +19,15 @@ const sidebars = {
   // But you can create a sidebar manually
   docs: [
     {
-      type: "doc",
-      label: "Getting Started",
-      id: "intro"
+      type: "category",
+      label: "Introduction",
+      link: {
+        type: 'generated-index',
+        title: 'Getting Started',
+        slug: '/',
+        keywords: ['Introduction'],
+      },
+      items: ["getting-started"],
     },
     {
       type: "category",
@@ -32,7 +38,6 @@ const sidebars = {
         description: "Understand the server infastructure and scrapers to understand the intuitions behind the components behind FreeBooksAPI. It is not necessary to read this if you're just looking to use the API.",
         slug: '/contribution',
         keywords: ['contribution'],
-        image: '/img/docusaurus.png',
       },
       items: ["contribution/overview", "contribution/intuitions"],
     },
