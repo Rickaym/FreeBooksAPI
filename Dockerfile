@@ -1,4 +1,4 @@
-FROM node:16 AS build
+FROM node:16
 
 WORKDIR /docs
 
@@ -12,7 +12,7 @@ RUN npm run build
 
 # Deployment step
 
-FROM python:3.9.16-bullseye AS deploy
+FROM python:3.9.16-bullseye
 
 COPY requirements.txt /app/
 
