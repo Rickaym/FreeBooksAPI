@@ -2,9 +2,10 @@ import logging
 import aiohttp
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.utils import get_openapi
 from os import getenv
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, FileResponse
 from logging import getLogger
 from typing import Dict, List, Optional
 from misc import cache_cascade, set_cache
@@ -19,6 +20,7 @@ from scrapers.libgenlc import LibGenLc
 from scrapers.objects import SearchUrlArgs, SearchMode
 
 FREEBOOKSAPI = VersionedFastAPI(docs_url=None, redoc_url=None)
+FREEBOOKSAPI.mount("/home", StaticFiles(directory="home"), name="home")
 
 
 def custom_mount(parent: FastAPI, version_key: str):
@@ -74,6 +76,16 @@ async def shutdown_event():
                     "content": "‼️ Heyall <#1032297422975680512> has been shut down 🛑"
                 },
             )
+
+
+@FREEBOOKSAPI.get("/", response_class=RedirectResponse, include_in_schema=False)
+def index():
+    return RedirectResponse("/home")
+
+
+@FREEBOOKSAPI.get("/home", response_class=FileResponse, include_in_schema=False)
+def home_resp():
+    return FileResponse("./home/index.html")
 
 
 @FREEBOOKSAPI.get("/docs", response_class=RedirectResponse, include_in_schema=False)
