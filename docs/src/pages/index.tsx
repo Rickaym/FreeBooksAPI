@@ -36,7 +36,7 @@ export default function Home(): JSX.Element {
   return (
     <Layout
       title={`${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
+      description="A comprehensive (unofficial) API service for planet-ebooks, libgen/gen.lib.rus.ec, and libgen.lc | Get Started · Documentation <head />">
       <HomepageHeader />
       <main>
       </main>
