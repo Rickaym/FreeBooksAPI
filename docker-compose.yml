@@ -6,7 +6,7 @@ services:
       target: deploy
     container_name: freebooksapi
     ports:
-      - "80:80"
+      - "8000:8000"
     volumes:
       - /root/..freebooksapi-data
     environment:
