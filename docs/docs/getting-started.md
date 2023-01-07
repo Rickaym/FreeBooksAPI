@@ -6,41 +6,38 @@ sidebar_position: 1
 
 # Getting Started
 
-We'll need to keep in mind the following base URLs to understand the whole API.
-
-| Type      | Url |
+| Base Url      | https://freebooksapi.pyaesonemyo.dev/api/ |
 | ------------- |:-------------:|
-| Base Url      | https://freebooksapi.pyaesonemyo.dev/ |
-| Versioned base url      | https://freebooksapi.pyaesonemyo.dev/v{major} (or) /latest/ |
-| Library selector | https://freebooksapi.pyaesonemyo.dev/v{major}/{library} |
+| Versioned base url      | https://freebooksapi.pyaesonemyo.dev/api/v{major} (or) https://freebooksapi.pyaesonemyo.dev/api/latest/ |
+| Library selector | https://freebooksapi.pyaesonemyo.dev/api/v{major}/{library} |
 
-For specific API Reference, look at [redoc](https://freebooksapi.pyaesonemyo.dev/latest/docs).
+To learn more about specific API endpoints, please read the [api reference](https://freebooksapi.pyaesonemyo.dev/api/latest/docs).
 
-### Searching Example
+## Searching Example
 
-There are a few libraries we can pick from when querying for publications. We'll use [libgen](http://gen.lib.rus.ec/) in this example with the url args <sup>*(more about the existing url args in the docs)*</sup> "dostoyevsky" as our query string and a limit of 1 publication record.
+In this example we will search for a book from [libgen](http://gen.lib.rus.ec/) library
+with the query "dostoyevsky" and a limit of just 1 record for the response.
 
 Using the versioned base url with the library selected, we get the following curl command:
 ```s
-curl -X GET \
-  'https://freebooksapi.pyaesonemyo.dev/latest/libgen/search?q=dostoyevsky&limit=1'
+curl -X GET 'https://freebooksapi.pyaesonemyo.dev/api/latest/libgen/search?q=dostoyevsky&limit=1'
 ```
 
 :::tip Note
 
-You don't need any authorization to use this API. Please use judiciously lol.
+You can follow along by pasting the `curl` command into the terminal.
 
 :::
 
-#### Different Libraries
+### Different Libraries
 
-Switching libraries is simply done through substituting the `{library}` url arg from our base url with an available library ID.
+To search from different libraries, we will substituting the `{library}` url arg
+from our base url with an available library ID.
 
 The exact same GET request for the above example using planetebooks would be:
 
 ```s
-curl -X GET \
-  'https://freebooksapi.pyaesonemyo.dev/latest/planetebooks/search?q=dostoyevsky&limit=1'
+curl -X GET 'https://freebooksapi.pyaesonemyo.dev/api/latest/planetebooks/search?q=dostoyevsky&limit=1'
 ```
 
 A Python equivalent example using requests would simply be:
@@ -48,8 +45,7 @@ A Python equivalent example using requests would simply be:
 ```py
 import requests
 
-url = "https://freebooksapi.pyaesonemyo.dev/latest/libgen/search?q=dostoyevsky&limit=1"
+url = "https://freebooksapi.pyaesonemyo.dev/api/latest/libgen/search?q=dostoyevsky&limit=1"
 
 response = requests.request("GET", url)
 ```
-

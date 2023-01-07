@@ -86,7 +86,7 @@ const config = {
               },
               {
                 label: 'API Reference',
-                to: 'https://freebooksapi.pyaesonemyo.dev/latest/docs',
+                to: 'https://freebooksapi.pyaesonemyo.dev/api/latest/docs',
               },
             ],
           },
