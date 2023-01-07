@@ -10,11 +10,11 @@ We'll need to keep in mind the following base URLs to understand the whole API.
 
 | Type      | Url |
 | ------------- |:-------------:|
-| Base Url      | https://freebooksapi.pyaesonemyo.me/ |
-| Versioned base url      | https://freebooksapi.pyaesonemyo.me/v{major} (or) /latest/ |
-| Library selector | https://freebooksapi.pyaesonemyo.me/v{major}/{library} |
+| Base Url      | https://freebooksapi.pyaesonemyo.dev/ |
+| Versioned base url      | https://freebooksapi.pyaesonemyo.dev/v{major} (or) /latest/ |
+| Library selector | https://freebooksapi.pyaesonemyo.dev/v{major}/{library} |
 
-For specific API Reference, look at [redoc](https://freebooksapi.pyaesonemyo.me/latest/docs).
+For specific API Reference, look at [redoc](https://freebooksapi.pyaesonemyo.dev/latest/docs).
 
 ### Searching Example
 
@@ -23,7 +23,7 @@ There are a few libraries we can pick from when querying for publications. We'll
 Using the versioned base url with the library selected, we get the following curl command:
 ```s
 curl -X GET \
-  'https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1'
+  'https://freebooksapi.pyaesonemyo.dev/latest/libgen/search?q=dostoyevsky&limit=1'
 ```
 
 :::tip Note
@@ -40,7 +40,7 @@ The exact same GET request for the above example using planetebooks would be:
 
 ```s
 curl -X GET \
-  'https://freebooksapi.pyaesonemyo.me/latest/planetebooks/search?q=dostoyevsky&limit=1'
+  'https://freebooksapi.pyaesonemyo.dev/latest/planetebooks/search?q=dostoyevsky&limit=1'
 ```
 
 A Python equivalent example using requests would simply be:
@@ -48,7 +48,7 @@ A Python equivalent example using requests would simply be:
 ```py
 import requests
 
-url = "https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1"
+url = "https://freebooksapi.pyaesonemyo.dev/latest/libgen/search?q=dostoyevsky&limit=1"
 
 response = requests.request("GET", url)
 ```

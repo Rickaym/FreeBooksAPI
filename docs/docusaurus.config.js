@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const config = {
   title: 'FreebooksAPI',
   tagline: 'A comprehensive (unofficial) API service for planet-ebooks, libgen/gen.lib.rus.ec, and libgen.lc.',
-  url: 'https://freebooksapi.pyaesonemyo.me',
+  url: 'https://freebooksapi.pyaesonemyo.dev',
   baseUrl: '/home/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -86,7 +86,7 @@ const config = {
               },
               {
                 label: 'API Reference',
-                to: 'https://freebooksapi.pyaesonemyo.me/latest/docs',
+                to: 'https://freebooksapi.pyaesonemyo.dev/latest/docs',
               },
             ],
           },

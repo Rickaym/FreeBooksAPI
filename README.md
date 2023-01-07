@@ -2,7 +2,7 @@
 
 <!-- header -->
 
-<a href="https://freebooksapi.pyaesonemyo.me/latest/docs"><img alt="redoc-docs" src="https://img.shields.io/badge/Redoc-docs-purple?style=for-the-badge&logo=Read the Docs&logoColor=violet"></a>
+<a href="https://freebooksapi.pyaesonemyo.dev/latest/docs"><img alt="redoc-docs" src="https://img.shields.io/badge/Redoc-docs-purple?style=for-the-badge&logo=Read the Docs&logoColor=violet"></a>
 <a href="https://discord.gg/UmnzdPgn6g/"><img src="https://img.shields.io/discord/793047973751554088.svg?label=API Support&color=blue&style=for-the-badge&logo=discord" alt="Discord"></a>
 
 A comprehensive (unofficial) API service for [planet-ebooks](https://www.planetebook.com/), [gen.lib.rus.ec/libgen.rs](http://gen.lib.rus.ec/), [libgen.lc/libgen.li](http://libgen.lc/), providing API endpoints to retrieve download URLs, mirrors, publication metadata, and the likes.
@@ -26,12 +26,12 @@ The API implements the following features:
 
 We'll need to keep in mind the following base URLs to understand the whole API.
 
-| Base Url      | https://freebooksapi.pyaesonemyo.me/ |
+| Base Url      | https://freebooksapi.pyaesonemyo.dev/ |
 | ------------- |:-------------:|
-| Versioned base url      | https://freebooksapi.pyaesonemyo.me/v{major} (or) /latest/ |
-| Library selector | https://freebooksapi.pyaesonemyo.me/v{major}/{library} |
+| Versioned base url      | https://freebooksapi.pyaesonemyo.dev/v{major} (or) /latest/ |
+| Library selector | https://freebooksapi.pyaesonemyo.dev/v{major}/{library} |
 
-For specific API Reference, look at [ReDoc](https://freebooksapi.pyaesonemyo.me/latest/docs).
+For specific API Reference, look at [ReDoc](https://freebooksapi.pyaesonemyo.dev/latest/docs).
 
 ### Searching Example
 
@@ -40,7 +40,7 @@ There are a few libraries we can pick from when querying for publications. We'll
 Using the versioned base url with the library selected, we get the following curl command:
 ```s
 curl -X GET \
-  'https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1'
+  'https://freebooksapi.pyaesonemyo.dev/latest/libgen/search?q=dostoyevsky&limit=1'
 ```
 
 #### Different Libraries
@@ -51,7 +51,7 @@ The exact same GET request for the above example using planetebooks would be:
 
 ```s
 curl -X GET \
-  'https://freebooksapi.pyaesonemyo.me/latest/planetebooks/search?q=dostoyevsky&limit=1'
+  'https://freebooksapi.pyaesonemyo.dev/latest/planetebooks/search?q=dostoyevsky&limit=1'
 ```
 
 A Python equivalent example using requests would simply be:
@@ -59,7 +59,7 @@ A Python equivalent example using requests would simply be:
 ```py
 import requests
 
-url = "https://freebooksapi.pyaesonemyo.me/latest/libgen/search?q=dostoyevsky&limit=1"
+url = "https://freebooksapi.pyaesonemyo.dev/latest/libgen/search?q=dostoyevsky&limit=1"
 
 response = requests.request("GET", url)
 ```
