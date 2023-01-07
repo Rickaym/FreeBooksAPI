@@ -24,8 +24,9 @@ The API implements the following features:
 
 ## Getting Started
 
-| Base Url      | https://freebooksapi.pyaesonemyo.dev/api/ |
+| Type      | URL |
 | ------------- |:-------------:|
+| Base Url      | https://freebooksapi.pyaesonemyo.dev/api/ |
 | Versioned base url      | https://freebooksapi.pyaesonemyo.dev/api/v{major} (or) https://freebooksapi.pyaesonemyo.dev/api/latest/ |
 | Library selector | https://freebooksapi.pyaesonemyo.dev/api/v{major}/{library} |
 
